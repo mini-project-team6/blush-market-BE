@@ -1,6 +1,6 @@
 package com.sparta.blushmarket.jwt;
 
-import com.sparta.blushmarket.security.UserDetailsServiceImpl;
+//import com.sparta.blushmarket.security.UserDetailsServiceImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
@@ -23,7 +23,7 @@ import java.util.Date;
 @Component
 @RequiredArgsConstructor
 public class JwtUtil {
-    private final UserDetailsServiceImpl userDetailsService;
+//    private final UserDetailsServiceImpl userDetailsService;
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String AUTHORIZATION_KEY = "auth";
     private static final String BEARER_PREFIX = "Bearer ";
@@ -85,9 +85,9 @@ public class JwtUtil {
     }
 
     // 인증 객체 생성
-    public Authentication createAuthentication(String username) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-    }
+//    public Authentication createAuthentication(String username) {
+//        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+//        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+//    }
 
 }

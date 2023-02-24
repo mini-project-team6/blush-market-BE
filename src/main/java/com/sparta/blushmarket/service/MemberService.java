@@ -1,6 +1,5 @@
 package com.sparta.blushmarket.service;
 
-import com.sparta.blushmarket.dto.LoginRequestDto;
 import com.sparta.blushmarket.dto.StatusMsgResponseDto;
 import com.sparta.blushmarket.entity.Member;
 import com.sparta.blushmarket.jwt.JwtUtil;
@@ -11,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
@@ -18,6 +18,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class MemberService {
 
     private final MemberRepository memberRepository;
@@ -25,7 +26,7 @@ public class MemberService {
 
     private final PasswordEncoder passwordEncoder;
 
-//    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    @Transactional
     public ResponseEntity<StatusMsgResponseDto> signup(String userName, String password){
         // 회원가입 유저가 있는지 확인하는 부분
         // 기존에 id체크하는 부분이 있어서 이 부분 관련 협의 필요
@@ -37,6 +38,7 @@ public class MemberService {
     /**
      * 로그인 기능
      */
+    @Transactional
     public ResponseEntity<StatusMsgResponseDto> login(String userName, String password, HttpServletRequest request) {
 
         Optional<Member> findMemeber = memberRepository.findByName(userName);
@@ -52,6 +54,7 @@ public class MemberService {
     /**
      * 등록된 멤버인지 확인하는 기능
      */
+    @Transactional
     public void memberCheck(String username) {
         Optional<Member> findMember = memberRepository.findByName(username);
         if(findMember.isPresent()){

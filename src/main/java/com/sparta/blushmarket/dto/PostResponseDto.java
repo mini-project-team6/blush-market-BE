@@ -9,16 +9,18 @@ public class PostResponseDto {
     private Long id;
     private String title;
     private String content;
-    private String username;
+    private String image;
 
 
-
-
-
-    private PostResponseDto(Post entity) {
-        this.id = entity.getId();
-        this.title = entity.getTitle();
-        this.content = entity.getContent();
+    private PostResponseDto(Post post) {
+        this.id = post.getId();
+        this.title = post.getTitle();
+        this.content = post.getContent();
+        this.image = post.getImage();
     }
 
+    public static PostResponseDto from(Post post) {
+        return new PostResponseDto(post);
+
+    }
 }

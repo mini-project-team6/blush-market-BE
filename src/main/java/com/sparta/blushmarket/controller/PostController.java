@@ -3,6 +3,7 @@ package com.sparta.blushmarket.controller;
 import com.sparta.blushmarket.common.ApiResponseDto;
 import com.sparta.blushmarket.common.SuccessResponse;
 import com.sparta.blushmarket.dto.PostRequestDto;
+import com.sparta.blushmarket.dto.PostResponseDto;
 import com.sparta.blushmarket.security.UserDetailsImpl;
 import com.sparta.blushmarket.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,12 @@ public class PostController {
     @DeleteMapping("/api/post/{id}")
     public ApiResponseDto<SuccessResponse> deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return postService.deletePost(id, userDetails.getUser());
+    }
+
+    // 선택된 게시글 상세보기
+    @GetMapping("/api/post/{id}")
+    public ApiResponseDto<PostResponseDto> getPost(@PathVariable Long id) {
+        return postService.getPost(id);
     }
 
 }

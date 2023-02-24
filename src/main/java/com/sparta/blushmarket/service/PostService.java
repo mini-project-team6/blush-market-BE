@@ -8,7 +8,6 @@ import com.sparta.blushmarket.dto.PostResponseDto;
 import com.sparta.blushmarket.entity.ExceptionEnum;
 import com.sparta.blushmarket.entity.Member;
 import com.sparta.blushmarket.entity.Post;
-import com.sparta.blushmarket.entity.SellState;
 import com.sparta.blushmarket.exception.CustomException;
 import com.sparta.blushmarket.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -59,7 +58,7 @@ public class PostService {
 
     }
 
-
+    //선택 게시글 삭제
     public ApiResponseDto<SuccessResponse> deletePost(Long id, Member member) {
         // 선택한 게시글이 DB에 있는지 확인
         Optional<Post> found = postRepository.findById(id);
@@ -76,7 +75,21 @@ public class PostService {
         // 게시글 id 와 사용자 정보 일치한다면, 게시글 수정
         postRepository.deleteById(id);
 
-        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "게시글 삭제 성공"));
+        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "삭제 성공"));
 
     }
+
+    //선택된 게시글 상세보기
+    @Transactional(readOnly = true)
+    public ApiResponseDto<PostResponseDto> getPost(Long id) {
+        // Id에 해당하는 게시글이 있는지 확인
+        Optional<Post> post = postRepository.findById(id);
+        if (post.isEmpty()) { // 해당 게시글이 없다면
+            throw new CustomException(ExceptionEnum.NOT_EXIST_POST);
+        }
+        // board 를 responseDto 로 변환 후, ResponseEntity body 에 dto 담아 리턴
+        return ResponseUtils.ok(PostResponseDto.from(post.get()));
+    }
+
+
 }

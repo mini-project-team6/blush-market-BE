@@ -3,7 +3,6 @@ package com.sparta.blushmarket.service;
 import com.sparta.blushmarket.common.ApiResponseDto;
 import com.sparta.blushmarket.common.ResponseUtils;
 import com.sparta.blushmarket.common.SuccessResponse;
-import com.sparta.blushmarket.dto.StatusMsgResponseDto;
 import com.sparta.blushmarket.entity.ExceptionEnum;
 import com.sparta.blushmarket.entity.Member;
 import com.sparta.blushmarket.exception.CustomException;
@@ -12,12 +11,10 @@ import com.sparta.blushmarket.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
 

@@ -1,6 +1,8 @@
 package com.sparta.blushmarket.entity;
 
 
+import com.sparta.blushmarket.dto.PostRequestDto;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -35,7 +37,21 @@ public class Post extends Timestamped{
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     private List<Comment> commentList = new ArrayList<>();
 
+    @Builder
+    private Post(PostRequestDto requestDto , Member member) {
+        this.title = requestDto.getTitle();
+        this.content = requestDto.getContents();
+        this.image = requestDto.getImage();
+        this.member = member;
 
+    }
+
+    public static Post of(PostRequestDto requestDto, Member member) {
+        return Post.builder()
+                .requestDto(requestDto)
+                .member(member)
+                .build();
+    }
 
 
 

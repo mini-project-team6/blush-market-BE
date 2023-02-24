@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 public class PostController {
@@ -29,15 +31,21 @@ public class PostController {
     }
 
     // 선택된 게시글 삭제
-    @DeleteMapping("/api/post/{id}")
+    @DeleteMapping("/api/post/{postId}")
     public ApiResponseDto<SuccessResponse> deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return postService.deletePost(id, userDetails.getUser());
     }
 
     // 선택된 게시글 상세보기
-    @GetMapping("/api/post/{id}")
+    @GetMapping("/api/post/{postId}")
     public ApiResponseDto<PostResponseDto> getPost(@PathVariable Long id) {
         return postService.getPost(id);
+    }
+
+    // 게시글 전체 목록 조회
+    @GetMapping("/api/posts")
+    public ApiResponseDto<List<PostResponseDto>> getAllPosts() {
+        return postService.getAllPosts();
     }
 
 }

@@ -15,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -92,4 +94,16 @@ public class PostService {
     }
 
 
+    //게시글 전체 조회
+    public ApiResponseDto<List<PostResponseDto>> getAllPosts() {
+        List<Post> postList = postRepository.findAllByOrderByModifiedAtDesc();
+        List<PostResponseDto> responseDtoList = new ArrayList<>();
+
+        for (Post post : postList) {
+            // List<BoardResponseDto> 로 만들기 위해 board 를 BoardResponseDto 로 만들고, list 에 dto 를 하나씩 넣는다.
+            responseDtoList.add(PostResponseDto.from(post));
+        }
+
+        return ResponseUtils.ok(responseDtoList);
+    }
 }

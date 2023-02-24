@@ -60,4 +60,23 @@ public class PostService {
     }
 
 
+    public ApiResponseDto<SuccessResponse> deletePost(Long id, Member member) {
+        // 선택한 게시글이 DB에 있는지 확인
+        Optional<Post> found = postRepository.findById(id);
+        if (found.isEmpty()) {
+            throw new CustomException(ExceptionEnum.NOT_EXIST_POST);
+        }
+
+        // 선택한 게시글의 작성자와 토큰에서 가져온 사용자 정보가 일치하는지 확인 (삭제하려는 사용자가 관리자라면 게시글 삭제 가능)
+        Optional<Post> board = postRepository.findByIdAndUser(id, member);
+        if (board.isEmpty()) { // 일치하는 게시물이 없다면
+            throw new CustomException(ExceptionEnum.NOT_EXIST_POST);
+        }
+
+        // 게시글 id 와 사용자 정보 일치한다면, 게시글 수정
+        postRepository.deleteById(id);
+
+        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "게시글 삭제 성공"));
+
+    }
 }

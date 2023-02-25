@@ -101,7 +101,7 @@ public class PostService {
 
     //게시글 전체 조회
     public ApiResponseDto<List<PostResponseDto>> getAllPosts() {
-        List<Post> postList = postRepository.findAllByOrderByCreatedAtAtDesc();
+        List<Post> postList = postRepository.findAllByOrderByCreatedAtDesc();
         List<PostResponseDto> responseDtoList = new ArrayList<>();
 
         for (Post post : postList) {

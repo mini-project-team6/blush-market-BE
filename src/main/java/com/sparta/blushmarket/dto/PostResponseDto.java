@@ -21,6 +21,5 @@ public class PostResponseDto {
 
     public static PostResponseDto from(Post post) {
         return new PostResponseDto(post);
-
     }
 }

@@ -48,7 +48,7 @@ public class WebSecurityConfig {
 
             cors.setAllowedMethods(Arrays.asList("GET","POST", "PUT", "DELETE", "OPTIONS"));
             cors.setAllowedHeaders(Arrays.asList("*"));
-            cors.addExposedHeader("Access_Token");
+            cors.addExposedHeader("Authorization");
             cors.addExposedHeader("Refresh_Token");
             cors.setAllowCredentials(true);
             return cors;

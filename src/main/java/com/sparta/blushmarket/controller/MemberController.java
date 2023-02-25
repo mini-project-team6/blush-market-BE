@@ -7,6 +7,8 @@ import com.sparta.blushmarket.dto.LoginRequestDto;
 import com.sparta.blushmarket.dto.SignupRequestDto;
 import com.sparta.blushmarket.dto.StatusMsgResponseDto;
 import com.sparta.blushmarket.service.MemberService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 @RequiredArgsConstructor
 @RequestMapping("/member")
 @Slf4j
+@Tag(name = "회원", description = "회원 API 입니다.")
 public class MemberController {
 
     private final MemberService memberService;
@@ -26,6 +29,7 @@ public class MemberController {
     /**
      * 회원관련 예외처리
      */
+    
     @ExceptionHandler(value = {IllegalArgumentException.class,IllegalStateException.class})
     public ResponseEntity<StatusMsgResponseDto> userInfoError(RuntimeException e){
         log.error("Error Msg - " + e.getMessage() );
@@ -36,6 +40,7 @@ public class MemberController {
     /**
      * 회원가입 기능 Controller
      */
+    @Operation(summary = "회원가입 메서드", description = "회원가입 메서드 입니다.")
     @PostMapping("/signup")
     public ApiResponseDto<SuccessResponse> signup(@RequestBody SignupRequestDto signupRequestDto){
         return memberService.signup(signupRequestDto.getName(),signupRequestDto.getPassword());
@@ -44,6 +49,7 @@ public class MemberController {
     /**
      * 회원명 중복 체크
      */
+    @Operation(summary = "회원 중복확인 메서드", description = "회원 중복확인 메서드 입니다.")
     @GetMapping("/usercheck/{username}")
     public ApiResponseDto<SuccessResponse> memberCheck(@PathVariable String username) {
         memberService.memberCheck(username);
@@ -53,6 +59,7 @@ public class MemberController {
     /**
      * 로그인 기능 Controller
      */
+    @Operation(summary = "회원 로그인 메서드", description = "회원 로그인 메서드 입니다.")
     @PostMapping("/login")
     public ApiResponseDto<SuccessResponse> login(@RequestBody LoginRequestDto requestDto, HttpServletResponse response){
         return memberService.login(requestDto.getName(),requestDto.getPassword(),response);

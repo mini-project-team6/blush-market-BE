@@ -29,16 +29,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String token = jwtUtil.resolveToken(request);
 
-        if (token == null) {
-            filterChain.doFilter(request, response); // 필터 체인의 다음 필터를 실행한다
+        if(token != null) {
+            if(!jwtUtil.validateToken(token)){ // JWT 토큰이 올바르지 않으면 예외를 처리를한다
+                jwtExceptionHandler(response, "Token Error", HttpStatus.UNAUTHORIZED.value());
+                return;
+            }
+            Claims info = jwtUtil.getUserInfoFromToken(token); //  JWT 토큰으로부터 추출한 사용자 정보를 Claims 객체로 반환한다
+            setAuthentication(info.getSubject()); // Security Context와 Authentication 객체를 생성한다
         }
-
-        if (!jwtUtil.validateToken(token)) { // JWT 토큰이 올바르지 않으면 예외를 처리를한다
-            jwtExceptionHandler(response, "Token Error", HttpStatus.UNAUTHORIZED.value());
-            return;
-        }
-        Claims info = jwtUtil.getUserInfoFromToken(token); //  JWT 토큰으로부터 추출한 사용자 정보를 Claims 객체로 반환한다
-        setAuthentication(info.getSubject()); // Security Context와 Authentication 객체를 생성한다
+        filterChain.doFilter(request,response); // 필터 체인의 다음 필터를 실행한다
 
     }
 

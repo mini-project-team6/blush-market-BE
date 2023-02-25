@@ -1,18 +1,21 @@
 package com.sparta.blushmarket.service;
 
-import com.sparta.blushmarket.dto.StatusMsgResponseDto;
+import com.sparta.blushmarket.common.ApiResponseDto;
+import com.sparta.blushmarket.common.ResponseUtils;
+import com.sparta.blushmarket.common.SuccessResponse;
+import com.sparta.blushmarket.entity.ExceptionEnum;
 import com.sparta.blushmarket.entity.Member;
+import com.sparta.blushmarket.exception.CustomException;
 import com.sparta.blushmarket.jwt.JwtUtil;
 import com.sparta.blushmarket.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
 
 @Service
@@ -27,28 +30,26 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public ResponseEntity<StatusMsgResponseDto> signup(String userName, String password){
+    public ApiResponseDto<SuccessResponse> signup(String userName, String password){
         // 회원가입 유저가 있는지 확인하는 부분
         // 기존에 id체크하는 부분이 있어서 이 부분 관련 협의 필요
         memberCheck(userName);
         memberRepository.save(new Member(userName,passwordEncoder.encode(password)));
-        return ResponseEntity.ok(new StatusMsgResponseDto("회원가입 성공", HttpStatus.OK.value()));
+        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK,"회원가입 성공"));
     }
 
     /**
      * 로그인 기능
      */
     @Transactional
-    public ResponseEntity<StatusMsgResponseDto> login(String userName, String password, HttpServletRequest request) {
+    public ApiResponseDto<SuccessResponse> login(String userName, String password, HttpServletResponse response) {
 
         Optional<Member> findMemeber = memberRepository.findByName(userName);
         if(findMemeber.isEmpty() || !passwordEncoder.matches(password,findMemeber.get().getPassword())){
-            throw new IllegalStateException("회원이 존재하지 않거나 패스워드가 일치하지 않습니다");
+            throw new CustomException(ExceptionEnum.PASSWORD_WRONG);
         }
-
-        return ResponseEntity.ok()
-                .header(JwtUtil.AUTHORIZATION_HEADER,jwtUtil.createToken(findMemeber.get().getName()))
-                .body(new StatusMsgResponseDto("로그인 완료", HttpStatus.OK.value()));
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER,jwtUtil.createToken(findMemeber.get().getName()));
+        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK,"로그인성공"));
     }
 
     /**
@@ -58,7 +59,7 @@ public class MemberService {
     public void memberCheck(String username) {
         Optional<Member> findMember = memberRepository.findByName(username);
         if(findMember.isPresent()){
-            throw new IllegalArgumentException("이미 존재하는 회원입니다.");
+            throw new CustomException(ExceptionEnum.DUPLICATE_USER);
         }
     }
 

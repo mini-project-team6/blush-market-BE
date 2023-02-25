@@ -42,6 +42,7 @@ public class Post extends Timestamped{
         this.title = requestDto.getTitle();
         this.content = requestDto.getContents();
         this.image = requestDto.getImage();
+        this.sellState = SellState.fromInteger(requestDto.getSellState());
         this.member = member;
 
     }
@@ -58,6 +59,7 @@ public class Post extends Timestamped{
         this.title = requestsDto.getTitle();
         this.content = requestsDto.getContents();
         this.member = member;
+
     }
 
 }

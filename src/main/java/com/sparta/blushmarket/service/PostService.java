@@ -48,7 +48,7 @@ public class PostService {
         }
 
         // 선택한 게시글의 작성자와 토큰에서 가져온 사용자 정보가 일치하는지 확인 (수정하려는 사용자가 관리자라면 게시글 수정 가능)
-        Optional<Post> found = postRepository.findByIdAndUser(id, member);
+        Optional<Post> found = postRepository.findByIdAndMember(id, member);
         if (found.isEmpty()) { // 일치하는 게시물이 없다면
             throw new CustomException(ExceptionEnum.NOT_EXIST_POST);
         }
@@ -69,7 +69,7 @@ public class PostService {
         }
 
         // 선택한 게시글의 작성자와 토큰에서 가져온 사용자 정보가 일치하는지 확인 (삭제하려는 사용자가 관리자라면 게시글 삭제 가능)
-        Optional<Post> board = postRepository.findByIdAndUser(id, member);
+        Optional<Post> board = postRepository.findByIdAndMember(id, member);
         if (board.isEmpty()) { // 일치하는 게시물이 없다면
             throw new CustomException(ExceptionEnum.NOT_EXIST_POST);
         }

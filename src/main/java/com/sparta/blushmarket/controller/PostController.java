@@ -25,19 +25,19 @@ public class PostController {
     }
 
     //선택 게시글 수정
-    @PutMapping("/api/post/{postId}")
-    public ApiResponseDto<SuccessResponse> updatePost(@RequestBody PostRequestDto requestsDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return postService.createPost(requestsDto, userDetails.getUser());
+    @PutMapping("/api/post/{id}")
+    public ApiResponseDto<SuccessResponse> updatePost(@PathVariable Long id, @RequestBody PostRequestDto requestsDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return postService.updatePost(id,requestsDto, userDetails.getUser());
     }
 
     // 선택된 게시글 삭제
-    @DeleteMapping("/api/post/{postId}")
+    @DeleteMapping("/api/post/{id}")
     public ApiResponseDto<SuccessResponse> deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return postService.deletePost(id, userDetails.getUser());
     }
 
     // 선택된 게시글 상세보기
-    @GetMapping("/api/post/{postId}")
+    @GetMapping("/api/post/{id}")
     public ApiResponseDto<PostResponseDto> getPost(@PathVariable Long id) {
         return postService.getPost(id);
     }

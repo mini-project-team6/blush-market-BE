@@ -9,4 +9,6 @@ public class PostRequestDto {
     private String contents;
     private String image;
 
+    private int sellState;
+
 }

@@ -50,7 +50,7 @@ public class PostController {
     }
 
     // 게시글 전체 목록 조회
-    @Operation(summary = "게시글 추가 메서드", description = "게시글 추가 메서드 입니다.")
+    @Operation(summary = "게시글 전체보기 메서드", description = "게시글 전체보기 메서드 입니다.")
     @GetMapping("/api/posts")
     public ApiResponseDto<List<PostResponseDto>> getAllPosts() {
         return postService.getAllPosts();

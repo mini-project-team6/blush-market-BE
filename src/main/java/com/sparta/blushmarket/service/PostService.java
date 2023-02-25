@@ -3,6 +3,7 @@ package com.sparta.blushmarket.service;
 import com.sparta.blushmarket.common.ApiResponseDto;
 import com.sparta.blushmarket.common.ResponseUtils;
 import com.sparta.blushmarket.common.SuccessResponse;
+import com.sparta.blushmarket.dto.CommentResponseDto;
 import com.sparta.blushmarket.dto.PostRequestDto;
 import com.sparta.blushmarket.dto.PostResponseDto;
 import com.sparta.blushmarket.entity.ExceptionEnum;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,6 +63,7 @@ public class PostService {
     }
 
     //선택 게시글 삭제
+    @Transactional
     public ApiResponseDto<SuccessResponse> deletePost(Long id, Member member) {
         // 선택한 게시글이 DB에 있는지 확인
         Optional<Post> found = postRepository.findById(id);
@@ -89,19 +92,22 @@ public class PostService {
         if (post.isEmpty()) { // 해당 게시글이 없다면
             throw new CustomException(ExceptionEnum.NOT_EXIST_POST);
         }
+
+        List<CommentResponseDto> commentList = post.get().getCommentList().stream().map(CommentResponseDto::from).sorted(Comparator.comparing(CommentResponseDto::getCreateAt).reversed()).toList();
         // board 를 responseDto 로 변환 후, ResponseEntity body 에 dto 담아 리턴
-        return ResponseUtils.ok(PostResponseDto.from(post.get()));
+        return ResponseUtils.ok(PostResponseDto.from(post.get(),commentList));
     }
 
 
     //게시글 전체 조회
     public ApiResponseDto<List<PostResponseDto>> getAllPosts() {
-        List<Post> postList = postRepository.findAllByOrderByModifiedAtDesc();
+        List<Post> postList = postRepository.findAllByOrderByCreatedAtAtDesc();
         List<PostResponseDto> responseDtoList = new ArrayList<>();
 
         for (Post post : postList) {
             // List<BoardResponseDto> 로 만들기 위해 board 를 BoardResponseDto 로 만들고, list 에 dto 를 하나씩 넣는다.
-            responseDtoList.add(PostResponseDto.from(post));
+            List<CommentResponseDto> commentList = post.getCommentList().stream().map(CommentResponseDto::from).sorted(Comparator.comparing(CommentResponseDto::getCreateAt).reversed()).toList();
+            responseDtoList.add(PostResponseDto.from(post,commentList));
         }
 
         return ResponseUtils.ok(responseDtoList);

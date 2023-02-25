@@ -55,9 +55,10 @@ public class Post extends Timestamped{
     }
 
 
-    public void update(PostRequestDto requestsDto, Member member) {
-        this.title = requestsDto.getTitle();
-        this.content = requestsDto.getContents();
+    public void update(PostRequestDto requestDto, Member member) {
+        this.title = requestDto.getTitle();
+        this.content = requestDto.getContents();
+        this.sellState = SellState.fromInteger(requestDto.getSellState());
         this.member = member;
 
     }

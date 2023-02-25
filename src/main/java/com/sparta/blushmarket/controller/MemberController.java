@@ -1,8 +1,5 @@
 package com.sparta.blushmarket.controller;
 
-import com.sparta.blushmarket.common.ApiResponseDto;
-import com.sparta.blushmarket.common.ResponseUtils;
-import com.sparta.blushmarket.common.SuccessResponse;
 import com.sparta.blushmarket.dto.LoginRequestDto;
 import com.sparta.blushmarket.dto.SignupRequestDto;
 import com.sparta.blushmarket.dto.StatusMsgResponseDto;
@@ -13,7 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,25 +34,26 @@ public class MemberController {
      * 회원가입 기능 Controller
      */
     @PostMapping("/signup")
-    public ApiResponseDto<SuccessResponse> signup(@RequestBody SignupRequestDto signupRequestDto){
+    public ResponseEntity<StatusMsgResponseDto> signup(@RequestBody SignupRequestDto signupRequestDto){
         return memberService.signup(signupRequestDto.getName(),signupRequestDto.getPassword());
     }
 
     /**
      * 회원명 중복 체크
      */
-    @GetMapping("/usercheck/{username}")
-    public ApiResponseDto<SuccessResponse> memberCheck(@PathVariable String username) {
+    @GetMapping("/userCheck/{username}")
+    public ResponseEntity<StatusMsgResponseDto> memberCheck(@PathVariable String username) {
         memberService.memberCheck(username);
-        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK,"사용가능한 계정입니다"));
+        return ResponseEntity.ok()
+                .body(new StatusMsgResponseDto("사용가능한 계정명입니다", HttpStatus.OK.value()));
     }
 
     /**
      * 로그인 기능 Controller
      */
     @PostMapping("/login")
-    public ApiResponseDto<SuccessResponse> login(@RequestBody LoginRequestDto requestDto, HttpServletResponse response){
-        return memberService.login(requestDto.getName(),requestDto.getPassword(),response);
+    public ResponseEntity<StatusMsgResponseDto> login(@RequestBody LoginRequestDto requestDto, HttpServletRequest request){
+        return memberService.login(requestDto.getName(),requestDto.getPassword(),request);
     }
 
 }

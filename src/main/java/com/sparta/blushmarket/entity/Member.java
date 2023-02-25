@@ -22,7 +22,6 @@ public class Member {
     @Column(nullable = false)
     private String password;
 
-
     @Builder
     public Member(String name, String password) {
         this.name = name;

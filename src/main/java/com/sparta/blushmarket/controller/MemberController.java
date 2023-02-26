@@ -1,14 +1,11 @@
 package com.sparta.blushmarket.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sparta.blushmarket.common.ApiResponseDto;
 import com.sparta.blushmarket.common.ErrorResponse;
 import com.sparta.blushmarket.common.ResponseUtils;
 import com.sparta.blushmarket.common.SuccessResponse;
-import com.sparta.blushmarket.dto.LoginRequestDto;
 import com.sparta.blushmarket.dto.SignupRequestDto;
-import com.sparta.blushmarket.jwt.JwtUtil;
-import com.sparta.blushmarket.service.KakaoService;
+import com.sparta.blushmarket.service.oauth.KakaoService;
 import com.sparta.blushmarket.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,9 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,7 +28,6 @@ public class MemberController {
     /**
      * 회원관련 예외처리
      */
-    
     @ExceptionHandler(value = {IllegalArgumentException.class,IllegalStateException.class})
     public ResponseEntity<ErrorResponse> userInfoError(RuntimeException e){
         log.error("Error Msg - " + e.getMessage() );
@@ -61,35 +54,5 @@ public class MemberController {
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK,"사용가능한 계정입니다"));
     }
 
-    /**
-     * 로그인 기능 Controller
-     */
-    @Operation(summary = "회원 로그인 메서드", description = "회원 로그인 메서드 입니다.")
-    @PostMapping("/login")
-    public ApiResponseDto<SuccessResponse> login(@RequestBody LoginRequestDto requestDto, HttpServletResponse response){
-        return memberService.login(requestDto.getName(),requestDto.getPassword(),response);
-    }
-
-    /**
-     * 카카오 로그인 기능 Controller
-     */
-    @GetMapping("/kakao/callback")
-    public ApiResponseDto<SuccessResponse> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
-
-        return kakaoService.kakaoLogin(code, response);
-    }
-
-    /**
-     * 로그아웃
-     */
-    @GetMapping("/logout")
-    public ApiResponseDto<SuccessResponse> logout(HttpServletResponse response)  {
-        // 로그 아웃 시 쿠키 삭제
-        Cookie cookie = new Cookie("Authorization",null);
-        cookie.setMaxAge(0);
-        cookie.setPath("/");
-        response.addCookie(cookie);
-        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK,"로그아웃 성공"));
-    }
 
 }

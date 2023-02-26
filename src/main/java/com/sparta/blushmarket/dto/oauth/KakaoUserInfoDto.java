@@ -1,4 +1,4 @@
-package com.sparta.myselectshop.dto;
+package com.sparta.blushmarket.dto.oauth;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

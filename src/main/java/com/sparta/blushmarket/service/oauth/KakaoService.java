@@ -1,4 +1,4 @@
-package com.sparta.blushmarket.service;
+package com.sparta.blushmarket.service.oauth;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -7,11 +7,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.blushmarket.common.ApiResponseDto;
 import com.sparta.blushmarket.common.ResponseUtils;
 import com.sparta.blushmarket.common.SuccessResponse;
+import com.sparta.blushmarket.dto.oauth.KakaoUserInfoDto;
 import com.sparta.blushmarket.entity.Member;
 import com.sparta.blushmarket.jwt.JwtUtil;
 import com.sparta.blushmarket.repository.MemberRepository;
-import com.sparta.myselectshop.dto.KakaoUserInfoDto;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -57,6 +56,7 @@ public class KakaoService {
 
     // 1. "인가 코드"로 "액세스 토큰" 요청
     private String getToken(String code) throws JsonProcessingException {
+
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");

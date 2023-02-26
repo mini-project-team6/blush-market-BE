@@ -21,29 +21,25 @@ public class Member {
     private String password;
 
     private Long kakaoId;
-
+    private Long naverId;
     private String email;
 
     @Builder
-    public Member(String name, String password) {
+    public Member(String name, String password,Long kakaoId, Long naverId, String email) {
         this.name = name;
         this.password = password;
-    }
-
-    public Member(String name, String password, String email) {
-        this.name = name;
-        this.password = password;
-        this.email = email;
-    }
-
-    public Member(String name, Long kakaoId, String password, String email) {
-        this.name = name;
         this.kakaoId = kakaoId;
-        this.password = password;
+        this.naverId = naverId;
         this.email = email;
     }
+
     public Member kakaoIdUpdate(Long kakaoId) {
         this.kakaoId = kakaoId;
+        return this;
+    }
+
+    public Member naverIdUpdate(Long naverId) {
+        this.naverId = naverId;
         return this;
     }
 }

@@ -1,5 +1,6 @@
 package com.sparta.blushmarket.repository;
 
+import com.sparta.blushmarket.entity.LoginType;
 import com.sparta.blushmarket.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -7,8 +8,5 @@ import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member,Long> {
     Optional<Member> findByName(String name);
-
-    Optional<Member> findByKakaoId(Long kakaoId);
-    Optional<Member> findByNaverId(Long naverId);
-    Optional<Member> findByEmail(String kakaoEmail);
+    Optional<Member> findByEmail(String email);
 }

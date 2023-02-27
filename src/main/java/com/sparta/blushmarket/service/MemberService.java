@@ -3,8 +3,10 @@ package com.sparta.blushmarket.service;
 import com.sparta.blushmarket.common.ApiResponseDto;
 import com.sparta.blushmarket.common.ResponseUtils;
 import com.sparta.blushmarket.common.SuccessResponse;
+import com.sparta.blushmarket.dto.SignupRequestDto;
 import com.sparta.blushmarket.dto.TokenDto;
 import com.sparta.blushmarket.entity.ExceptionEnum;
+import com.sparta.blushmarket.entity.LoginType;
 import com.sparta.blushmarket.entity.Member;
 import com.sparta.blushmarket.entity.RefreshToken;
 import com.sparta.blushmarket.exception.CustomException;
@@ -35,14 +37,16 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public ApiResponseDto<SuccessResponse> signup(String userName, String password){
+    public ApiResponseDto<SuccessResponse> signup(SignupRequestDto signupRequestDto){
         // 회원가입 유저가 있는지 확인하는 부분
         // 기존에 id체크하는 부분이 있어서 이 부분 관련 협의 필요
-        memberCheck(userName);
+        memberCheck(signupRequestDto.getName());
         memberRepository.save(
                 Member.builder()
-                        .name(userName)
-                        .password(passwordEncoder.encode(password))
+                        .name(signupRequestDto.getName())
+                        .password(passwordEncoder.encode(signupRequestDto.getPassword()))
+                        .email(signupRequestDto.getEmail())
+                        .loginType(LoginType.USER)
                         .build());
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK,"회원가입 성공"));
     }

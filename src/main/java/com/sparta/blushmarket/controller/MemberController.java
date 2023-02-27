@@ -6,6 +6,9 @@ import com.sparta.blushmarket.common.ResponseUtils;
 import com.sparta.blushmarket.common.SuccessResponse;
 import com.sparta.blushmarket.dto.LoginRequestDto;
 import com.sparta.blushmarket.dto.SignupRequestDto;
+
+import com.sparta.blushmarket.service.oauth.KakaoService;
+
 import com.sparta.blushmarket.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,7 +34,6 @@ public class MemberController {
     /**
      * 회원관련 예외처리
      */
-    
     @ExceptionHandler(value = {IllegalArgumentException.class,IllegalStateException.class})
     public ResponseEntity<ErrorResponse> userInfoError(RuntimeException e){
         log.error("Error Msg - " + e.getMessage() );
@@ -71,4 +74,5 @@ public class MemberController {
     public  ApiResponseDto<SuccessResponse> issuedToken(HttpServletRequest request, HttpServletResponse response){
         return memberService.issueToken(request,response);
     }
+
 }

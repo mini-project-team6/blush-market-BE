@@ -67,7 +67,6 @@ public class WebSecurityConfig {
                 // JwtAuthFilter를 UsernamePasswordAuthenticationFilter 이전에 실행되도록 설정한다. JwtAuthFilter는 JWT 토큰을 검증하고 인증/인가를 처리한다.
                 .and().addFilterBefore(new JwtAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
-//
 //        http.formLogin().loginPage("/api/user/login-page").permitAll(); //로그인 페이지를 설정한다
 //
 //        http.exceptionHandling().accessDeniedPage("/api/user/forbidden");

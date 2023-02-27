@@ -1,4 +1,4 @@
-package com.sparta.blushmarket.entity;
+package com.sparta.blushmarket.entity.enumclass;
 
 import lombok.Getter;
 

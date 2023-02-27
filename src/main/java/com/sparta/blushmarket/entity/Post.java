@@ -2,6 +2,7 @@ package com.sparta.blushmarket.entity;
 
 
 import com.sparta.blushmarket.dto.PostRequestDto;
+import com.sparta.blushmarket.entity.enumclass.SellState;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -6,7 +6,8 @@ import com.sparta.blushmarket.common.SuccessResponse;
 import com.sparta.blushmarket.dto.CommentResponseDto;
 import com.sparta.blushmarket.dto.PostRequestDto;
 import com.sparta.blushmarket.dto.PostResponseDto;
-import com.sparta.blushmarket.entity.ExceptionEnum;
+import com.sparta.blushmarket.dto.PostResponseDtoDetail;
+import com.sparta.blushmarket.entity.enumclass.ExceptionEnum;
 import com.sparta.blushmarket.entity.Member;
 import com.sparta.blushmarket.entity.Post;
 import com.sparta.blushmarket.exception.CustomException;
@@ -89,7 +90,7 @@ public class PostService {
 
     //선택된 게시글 상세보기
     @Transactional(readOnly = true)
-    public ApiResponseDto<PostResponseDto> getPost(Long id,Member member) {
+    public ApiResponseDto<PostResponseDtoDetail> getPost(Long id, Member member) {
         Boolean isLike=false;
         // Id에 해당하는 게시글이 있는지 확인
         Optional<Post> post = postRepository.findById(id);
@@ -105,7 +106,7 @@ public class PostService {
 
         }
 
-        return ResponseUtils.ok(PostResponseDto.from(isLike,post.get(),commentList));
+        return ResponseUtils.ok(PostResponseDtoDetail.from(isLike,post.get(),commentList));
     }
 
 
@@ -117,12 +118,12 @@ public class PostService {
         for (Post post : postList) {
             Boolean isLike=false;
             // List<BoardResponseDto> 로 만들기 위해 board 를 BoardResponseDto 로 만들고, list 에 dto 를 하나씩 넣는다.
-            List<CommentResponseDto> commentList = post.getCommentList().stream().map(CommentResponseDto::from).sorted(Comparator.comparing(CommentResponseDto::getCreateAt).reversed()).toList();
+
             if (member != null&&likeRepository.findByPost_IdAndMember_Id(post.getId(),member.getId()).isPresent()){
                 isLike=true;
 
             }
-            responseDtoList.add(PostResponseDto.from(isLike,post,commentList));
+            responseDtoList.add(PostResponseDto.from(isLike,post));
         }
 
         return ResponseUtils.ok(responseDtoList);

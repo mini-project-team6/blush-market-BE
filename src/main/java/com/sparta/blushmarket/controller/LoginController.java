@@ -36,7 +36,7 @@ public class LoginController {
     @Operation(summary = "회원 로그인 메서드", description = "회원 로그인 메서드 입니다.")
     @PostMapping("/login")
     public ApiResponseDto<SuccessResponse> login(@RequestBody LoginRequestDto requestDto, HttpServletResponse response){
-        return memberService.login(requestDto.getName(),requestDto.getPassword(),response);
+        return memberService.login(requestDto,response);
     }
 
     /**

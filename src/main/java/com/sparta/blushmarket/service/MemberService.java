@@ -3,9 +3,10 @@ package com.sparta.blushmarket.service;
 import com.sparta.blushmarket.common.ApiResponseDto;
 import com.sparta.blushmarket.common.ResponseUtils;
 import com.sparta.blushmarket.common.SuccessResponse;
+import com.sparta.blushmarket.dto.LoginRequestDto;
 import com.sparta.blushmarket.dto.SignupRequestDto;
 import com.sparta.blushmarket.dto.TokenDto;
-import com.sparta.blushmarket.entity.ExceptionEnum;
+import com.sparta.blushmarket.entity.enumclass.ExceptionEnum;
 import com.sparta.blushmarket.entity.LoginType;
 import com.sparta.blushmarket.entity.Member;
 import com.sparta.blushmarket.entity.RefreshToken;
@@ -55,22 +56,23 @@ public class MemberService {
      * 로그인 기능
      */
     @Transactional
-    public ApiResponseDto<SuccessResponse> login(String userName, String password, HttpServletResponse response) {
+    public ApiResponseDto<SuccessResponse> login(LoginRequestDto requestDto, HttpServletResponse response) {
+        String useremail = requestDto.getEmail();
+        String password = requestDto.getPassword();
 
-        Optional<Member> findMemeber = memberRepository.findByName(userName);
+        Optional<Member> findMemeber = memberRepository.findByEmail(useremail);
         if(findMemeber.isEmpty() || !passwordEncoder.matches(password,findMemeber.get().getPassword())){
             throw new CustomException(ExceptionEnum.PASSWORD_WRONG);
         }
-//        response.addHeader(JwtUtil.AUTHORIZATION_HEADER,jwtUtil.createToken(findMemeber.get().getName()));
 
-        TokenDto tokenDto = jwtUtil.createAllToken(userName);
+        TokenDto tokenDto = jwtUtil.createAllToken(useremail);
 
-        Optional<RefreshToken> refreshToken = refreshTokenRepository.findAllByMemberId(userName);
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findAllByMemberId(useremail);
 
         if(refreshToken.isPresent()) {
             refreshTokenRepository.save(refreshToken.get().updateToken(tokenDto.getRefresh_Token()));
         }else {
-            RefreshToken newToken = new RefreshToken(tokenDto.getRefresh_Token(), userName);
+            RefreshToken newToken = new RefreshToken(tokenDto.getRefresh_Token(), useremail);
             refreshTokenRepository.save(newToken);
         }
 

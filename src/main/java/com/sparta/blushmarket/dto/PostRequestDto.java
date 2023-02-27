@@ -1,6 +1,5 @@
 package com.sparta.blushmarket.dto;
 
-import com.sparta.blushmarket.entity.SellState;
 import lombok.Getter;
 import org.springframework.web.multipart.MultipartFile;
 

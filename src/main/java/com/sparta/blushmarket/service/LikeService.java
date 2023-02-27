@@ -4,7 +4,7 @@ package com.sparta.blushmarket.service;
 import com.sparta.blushmarket.common.ApiResponseDto;
 import com.sparta.blushmarket.common.ResponseUtils;
 import com.sparta.blushmarket.common.SuccessResponse;
-import com.sparta.blushmarket.entity.ExceptionEnum;
+import com.sparta.blushmarket.entity.enumclass.ExceptionEnum;
 import com.sparta.blushmarket.entity.Likes;
 import com.sparta.blushmarket.entity.Member;
 import com.sparta.blushmarket.entity.Post;

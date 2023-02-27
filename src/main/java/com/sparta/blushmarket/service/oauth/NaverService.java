@@ -105,7 +105,6 @@ public class NaverService {
         );
 
         String responseBody = response.getBody();
-        System.out.println(responseBody);
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
         Long id = jsonNode.get("response").get("id").asLong();

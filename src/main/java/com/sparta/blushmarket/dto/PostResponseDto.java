@@ -1,6 +1,7 @@
 package com.sparta.blushmarket.dto;
 
 import com.sparta.blushmarket.entity.Post;
+import com.sparta.blushmarket.entity.SellState;
 import lombok.Builder;
 import lombok.Getter;
 

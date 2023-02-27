@@ -19,27 +19,23 @@ public class Member {
 
     @Column(nullable = false)
     private String password;
-
-    private Long kakaoId;
-    private Long naverId;
+    @Column(nullable = false)
     private String email;
 
+    @Column(nullable = false)
+    @Enumerated(value = EnumType.STRING)
+    private LoginType loginType;
+
     @Builder
-    public Member(String name, String password,Long kakaoId, Long naverId, String email) {
+    public Member(String name, String password, String email,LoginType loginType) {
         this.name = name;
         this.password = password;
-        this.kakaoId = kakaoId;
-        this.naverId = naverId;
         this.email = email;
+        this.loginType = loginType;
     }
 
-    public Member kakaoIdUpdate(Long kakaoId) {
-        this.kakaoId = kakaoId;
-        return this;
+    public void updateLoginStatus(LoginType loginType){
+        this.loginType = loginType;
     }
 
-    public Member naverIdUpdate(Long naverId) {
-        this.naverId = naverId;
-        return this;
-    }
 }

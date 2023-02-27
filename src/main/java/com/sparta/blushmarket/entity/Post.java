@@ -40,7 +40,7 @@ public class Post extends Timestamped{
     @Builder
     private Post(PostRequestDto requestDto , Member member) {
         this.title = requestDto.getTitle();
-        this.content = requestDto.getContents();
+        this.content = requestDto.getContent();
         this.image = requestDto.getImage();
         this.sellState = SellState.fromInteger(requestDto.getSellState());
         this.member = member;
@@ -55,9 +55,10 @@ public class Post extends Timestamped{
     }
 
 
-    public void update(PostRequestDto requestsDto, Member member) {
-        this.title = requestsDto.getTitle();
-        this.content = requestsDto.getContents();
+    public void update(PostRequestDto requestDto, Member member) {
+        this.title = requestDto.getTitle();
+        this.content = requestDto.getContent();
+        this.sellState = SellState.fromInteger(requestDto.getSellState());
         this.member = member;
 
     }

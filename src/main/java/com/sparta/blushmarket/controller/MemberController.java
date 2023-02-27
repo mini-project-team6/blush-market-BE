@@ -1,11 +1,11 @@
 package com.sparta.blushmarket.controller;
 
 import com.sparta.blushmarket.common.ApiResponseDto;
+import com.sparta.blushmarket.common.ErrorResponse;
 import com.sparta.blushmarket.common.ResponseUtils;
 import com.sparta.blushmarket.common.SuccessResponse;
 import com.sparta.blushmarket.dto.LoginRequestDto;
 import com.sparta.blushmarket.dto.SignupRequestDto;
-import com.sparta.blushmarket.dto.StatusMsgResponseDto;
 import com.sparta.blushmarket.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,10 +31,10 @@ public class MemberController {
      */
     
     @ExceptionHandler(value = {IllegalArgumentException.class,IllegalStateException.class})
-    public ResponseEntity<StatusMsgResponseDto> userInfoError(RuntimeException e){
+    public ResponseEntity<ErrorResponse> userInfoError(RuntimeException e){
         log.error("Error Msg - " + e.getMessage() );
         return ResponseEntity.badRequest()
-                .body(new StatusMsgResponseDto(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
+                .body(ErrorResponse.of(HttpStatus.BAD_REQUEST.value(),e.getMessage()));
     }
 
     /**

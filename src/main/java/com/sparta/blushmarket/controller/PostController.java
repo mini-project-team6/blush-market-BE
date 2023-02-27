@@ -5,6 +5,7 @@ import com.sparta.blushmarket.common.SuccessResponse;
 import com.sparta.blushmarket.dto.PostRequestDto;
 import com.sparta.blushmarket.dto.PostResponseDto;
 import com.sparta.blushmarket.entity.FileInfo;
+import com.sparta.blushmarket.dto.PostResponseDtoDetail;
 import com.sparta.blushmarket.security.UserDetailsImpl;
 import com.sparta.blushmarket.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,6 +45,8 @@ public class PostController {
     @GetMapping("/api/post/{postId}")
     public ApiResponseDto<PostResponseDto> getPost(@PathVariable Long postId) {
         return postService.getPost(postId);
+    public ApiResponseDto<PostResponseDtoDetail> getPost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return postService.getPost(postId,userDetails.getUser());
     }
 
     // 게시글 전체 목록 조회

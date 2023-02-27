@@ -9,14 +9,14 @@ import com.sparta.blushmarket.common.s3.Uploader;
 import com.sparta.blushmarket.dto.CommentResponseDto;
 import com.sparta.blushmarket.dto.PostRequestDto;
 import com.sparta.blushmarket.dto.PostResponseDto;
-import com.sparta.blushmarket.entity.ExceptionEnum;
-import com.sparta.blushmarket.entity.FileInfo;
 import com.sparta.blushmarket.dto.PostResponseDtoDetail;
-import com.sparta.blushmarket.entity.enumclass.ExceptionEnum;
+import com.sparta.blushmarket.entity.FileInfo;
 import com.sparta.blushmarket.entity.Member;
 import com.sparta.blushmarket.entity.Post;
+import com.sparta.blushmarket.entity.enumclass.ExceptionEnum;
 import com.sparta.blushmarket.exception.CustomException;
 import com.sparta.blushmarket.repository.FileInfoRepository;
+import com.sparta.blushmarket.repository.LikeRepository;
 import com.sparta.blushmarket.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +39,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final Uploader uploader;
     private final FileInfoRepository fileInfoRepository;
+    private final LikeRepository likeRepository;
 
     //게시글 작성
     @Transactional
@@ -121,7 +122,7 @@ public class PostService {
     }
 
     //선택된 게시글 상세보기
-    @Transactional(readOnly = true)
+    @Transactional()
     public ApiResponseDto<PostResponseDtoDetail> getPost(Long id, Member member) {
         Boolean isLike=false;
         // Id에 해당하는 게시글이 있는지 확인

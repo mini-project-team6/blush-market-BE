@@ -4,8 +4,9 @@ import com.sparta.blushmarket.common.ApiResponseDto;
 import com.sparta.blushmarket.common.SuccessResponse;
 import com.sparta.blushmarket.dto.PostRequestDto;
 import com.sparta.blushmarket.dto.PostResponseDto;
-import com.sparta.blushmarket.entity.FileInfo;
 import com.sparta.blushmarket.dto.PostResponseDtoDetail;
+import com.sparta.blushmarket.entity.FileInfo;
+import com.sparta.blushmarket.entity.Member;
 import com.sparta.blushmarket.security.UserDetailsImpl;
 import com.sparta.blushmarket.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,8 +44,6 @@ public class PostController {
 
     // 선택된 게시글 상세보기
     @GetMapping("/api/post/{postId}")
-    public ApiResponseDto<PostResponseDto> getPost(@PathVariable Long postId) {
-        return postService.getPost(postId);
     public ApiResponseDto<PostResponseDtoDetail> getPost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return postService.getPost(postId,userDetails.getUser());
     }
@@ -52,8 +51,8 @@ public class PostController {
     // 게시글 전체 목록 조회
     @Operation(summary = "게시글 전체보기 메서드", description = "게시글 전체보기 메서드 입니다.")
     @GetMapping("/api/posts")
-    public ApiResponseDto<List<PostResponseDto>> getAllPosts() {
-        return postService.getAllPosts();
+    public ApiResponseDto<List<PostResponseDto>> getAllPosts(Member member) {
+        return postService.getAllPosts(member);
     }
 
 }

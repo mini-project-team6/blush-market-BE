@@ -44,7 +44,7 @@ public class MemberController {
     @Operation(summary = "회원가입 메서드", description = "회원가입 메서드 입니다.")
     @PostMapping("/signup")
     public ApiResponseDto<SuccessResponse> signup(@RequestBody SignupRequestDto signupRequestDto){
-        return memberService.signup(signupRequestDto.getName(),signupRequestDto.getPassword());
+        return memberService.signup(signupRequestDto);
     }
 
     /**

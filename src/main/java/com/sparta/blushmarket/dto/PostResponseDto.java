@@ -1,13 +1,9 @@
 package com.sparta.blushmarket.dto;
 
-import com.sparta.blushmarket.entity.Likes;
 import com.sparta.blushmarket.entity.Post;
-import com.sparta.blushmarket.entity.SellState;
+import com.sparta.blushmarket.entity.enumclass.SellState;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 public class PostResponseDto {

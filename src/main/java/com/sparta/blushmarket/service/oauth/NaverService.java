@@ -7,10 +7,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.blushmarket.common.ApiResponseDto;
 import com.sparta.blushmarket.common.ResponseUtils;
 import com.sparta.blushmarket.common.SuccessResponse;
-import com.sparta.blushmarket.dto.oauth.NaverUserInfoDto;
+import com.sparta.blushmarket.dto.TokenDto;
+import com.sparta.blushmarket.dto.oauth.SocialUserInfoDto;
+import com.sparta.blushmarket.entity.LoginType;
 import com.sparta.blushmarket.entity.Member;
+import com.sparta.blushmarket.entity.RefreshToken;
 import com.sparta.blushmarket.jwt.JwtUtil;
 import com.sparta.blushmarket.repository.MemberRepository;
+import com.sparta.blushmarket.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -20,8 +24,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -30,27 +34,32 @@ import java.util.UUID;
 public class NaverService {
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
 
     public ApiResponseDto<SuccessResponse> naverLogin(String code,String state, HttpServletResponse response) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getToken(code , state);
-        log.info("accessToken={}",accessToken);
 
         // 2. 토큰으로 NAVER API 호출 : "액세스 토큰"으로 "NAVER 사용자 정보" 가져오기
-        NaverUserInfoDto naverUserInfo = getNaverUserInfo(accessToken);
+        SocialUserInfoDto userInfo = getNaverUserInfo(accessToken);
 
         // 3. 필요시에 회원가입
-        Member naverUser = registerNaverUserIfNeeded(naverUserInfo);
+        Member member = registerNaverUserIfNeeded(userInfo);
 
         // 4. JWT 토큰 반환
-        String createToken = jwtUtil.createToken(naverUser.getName(),"Access");
-        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, createToken);
+        TokenDto tokenDto = jwtUtil.createAllToken(member.getName());
 
-        // Cookie 생성 및 직접 브라우저에 Set
-        Cookie cookie = new Cookie(JwtUtil.AUTHORIZATION_HEADER, createToken.substring(7));
-        cookie.setPath("/");
-        response.addCookie(cookie);
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findAllByMemberId(member.getName());
+
+        if(refreshToken.isPresent()) {
+            refreshTokenRepository.save(refreshToken.get().updateToken(tokenDto.getRefresh_Token()));
+        }else {
+            RefreshToken newToken = new RefreshToken(tokenDto.getRefresh_Token(), member.getName());
+            refreshTokenRepository.save(newToken);
+        }
+
+        jwtUtil.setHeader(response, tokenDto);
 
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "사용가능한 계정입니다"));
     }
@@ -88,7 +97,7 @@ public class NaverService {
     }
 
     // 2. 토큰으로 카카오 API 호출 : "액세스 토큰"으로 "카카오 사용자 정보" 가져오기
-    private NaverUserInfoDto getNaverUserInfo(String accessToken) throws JsonProcessingException {
+    private SocialUserInfoDto getNaverUserInfo(String accessToken) throws JsonProcessingException {
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + accessToken);
@@ -112,41 +121,28 @@ public class NaverService {
         String email = jsonNode.get("response").get("email").asText();
 
         log.info("네이버 사용자 정보: " + id + ", " + nickname + ", " + email);
-        return new NaverUserInfoDto(id, nickname, email);
+        return new SocialUserInfoDto(id, nickname, email);
     }
 
     // 3. 필요시에 회원가입
-    private Member registerNaverUserIfNeeded(NaverUserInfoDto naverUserInfo) {
-        // DB 에 중복된 Kakao Id 가 있는지 확인
-        Long naverId = naverUserInfo.getId();
-        Member naverUser = memberRepository.findByNaverId(naverId)
+    private Member registerNaverUserIfNeeded(SocialUserInfoDto userInfoDto) {
+        Member findUser = memberRepository.findByEmail(userInfoDto.getEmail())
                 .orElse(null);
-        //naver로 가입된 회원 유무
-        if (naverUser == null) {
-            // 네이버 사용자 email 동일한 email 가진 회원이 있는지 확인
-            String naverEmail = naverUserInfo.getEmail();
-            Member sameEmailUser = memberRepository.findByEmail(naverEmail).orElse(null);
-            if (sameEmailUser != null) {
-                naverUser = sameEmailUser;
-                // 기존 회원정보에 카카오 Id 추가
-                naverUser = naverUser.naverIdUpdate(naverId);
-            } else {
-                // 신규 회원가입
-                // password: random UUID
-                String password = UUID.randomUUID().toString();
-                String encodedPassword = passwordEncoder.encode(password);
 
-                // email: kakao email
-                String email = naverUserInfo.getEmail();
-                naverUser = Member.builder()
-                        .name(naverUserInfo.getNickname())
-                        .naverId(naverId)
-                        .password(encodedPassword)
-                        .email(email)
-                        .build();
-            }
-            memberRepository.save(naverUser);
+        if(findUser == null){
+            findUser = memberRepository.save(Member.builder()
+                    .name(userInfoDto.getNickname())
+                    .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                    .email(userInfoDto.getEmail())
+                    .loginType(LoginType.NAVER_USER)
+                    .build());
+        }else {
+            findUser.updateLoginStatus(LoginType.NAVER_USER);
         }
-        return naverUser;
+        return findUser;
+    }
+    private void setHeader(HttpServletResponse response, TokenDto tokenDto) {
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, tokenDto.getAuthorization());
+        response.addHeader(JwtUtil.REFRESH_TOKEN, tokenDto.getRefresh_Token());
     }
 }

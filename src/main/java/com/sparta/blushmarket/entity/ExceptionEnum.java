@@ -14,7 +14,10 @@ public enum ExceptionEnum {
     NOT_EXIST_USER(400,"사용자가 없습니다"),
     DUPLICATE_USER(400,"중복된 사용자 입니다"),
     NOT_EXIST_CATEGORY(400,"카테고리가 없습니다"),
-    WRONG_VALUE(400,"잘못된 요청값입니다");   
+    WRONG_VALUE(400,"잘못된 요청값입니다"),
+
+    JWT_EXPIRED_TOKEN(400,"다시 로그인 해주세요");
+    
     
 
     private final int code;

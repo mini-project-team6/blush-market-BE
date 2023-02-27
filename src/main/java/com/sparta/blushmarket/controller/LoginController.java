@@ -5,6 +5,7 @@ import com.sparta.blushmarket.common.ApiResponseDto;
 import com.sparta.blushmarket.common.ResponseUtils;
 import com.sparta.blushmarket.common.SuccessResponse;
 import com.sparta.blushmarket.dto.LoginRequestDto;
+import com.sparta.blushmarket.security.UserDetailsImpl;
 import com.sparta.blushmarket.service.MemberService;
 import com.sparta.blushmarket.service.oauth.KakaoService;
 import com.sparta.blushmarket.service.oauth.NaverService;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
@@ -59,13 +61,10 @@ public class LoginController {
     /**
      * 로그아웃
      */
+    @Operation(summary = "회원 로그아웃 메서드", description = "회원 로그아웃 메서드 입니다.")
     @GetMapping("/logout")
-    public ApiResponseDto<SuccessResponse> logout(HttpServletResponse response)  {
-        // 로그 아웃 시 쿠키 삭제
-        Cookie cookie = new Cookie("Authorization",null);
-        cookie.setMaxAge(0);
-        cookie.setPath("/");
-        response.addCookie(cookie);
-        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK,"로그아웃 성공"));
+    public ApiResponseDto<SuccessResponse> logout(@AuthenticationPrincipal UserDetailsImpl userDetails)  {
+
+        return memberService.logout(userDetails.getUser());
     }
 }

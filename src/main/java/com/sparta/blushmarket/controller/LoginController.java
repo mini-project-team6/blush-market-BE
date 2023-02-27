@@ -5,8 +5,9 @@ import com.sparta.blushmarket.common.ApiResponseDto;
 import com.sparta.blushmarket.common.ResponseUtils;
 import com.sparta.blushmarket.common.SuccessResponse;
 import com.sparta.blushmarket.dto.LoginRequestDto;
-import com.sparta.blushmarket.service.oauth.KakaoService;
 import com.sparta.blushmarket.service.MemberService;
+import com.sparta.blushmarket.service.oauth.KakaoService;
+import com.sparta.blushmarket.service.oauth.NaverService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,8 @@ public class LoginController {
 
     private final MemberService memberService;
     private final KakaoService kakaoService;
+    private final NaverService naverService;
+
 
     /**
      * 로그인 기능 Controller
@@ -39,8 +42,15 @@ public class LoginController {
      */
     @GetMapping("/kakao/callback")
     public ApiResponseDto<SuccessResponse> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
-
         return kakaoService.kakaoLogin(code, response);
+    }
+
+    /**
+     * 네이버 로그인 기능 Controller
+     */
+    @GetMapping("/naver/callback")
+    public ApiResponseDto<SuccessResponse> naverLogin(@RequestParam String code,@RequestParam String state, HttpServletResponse response) throws JsonProcessingException {
+        return naverService.naverLogin(code, state, response);
     }
 
     /**

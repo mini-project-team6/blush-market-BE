@@ -4,12 +4,9 @@ import com.sparta.blushmarket.common.ApiResponseDto;
 import com.sparta.blushmarket.common.ErrorResponse;
 import com.sparta.blushmarket.common.ResponseUtils;
 import com.sparta.blushmarket.common.SuccessResponse;
-import com.sparta.blushmarket.dto.LoginRequestDto;
 import com.sparta.blushmarket.dto.SignupRequestDto;
-
-import com.sparta.blushmarket.service.oauth.KakaoService;
-
 import com.sparta.blushmarket.service.MemberService;
+import com.sparta.blushmarket.service.oauth.KakaoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 public class MemberController {
 
     private final MemberService memberService;
+    private final KakaoService kakaoService;
 
     /**
      * 회원관련 예외처리
@@ -60,14 +57,6 @@ public class MemberController {
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK,"사용가능한 계정입니다"));
     }
 
-    /**
-     * 로그인 기능 Controller
-     */
-    @Operation(summary = "회원 로그인 메서드", description = "회원 로그인 메서드 입니다.")
-    @PostMapping("/login")
-    public ApiResponseDto<SuccessResponse> login(@RequestBody LoginRequestDto requestDto, HttpServletResponse response){
-        return memberService.login(requestDto.getName(),requestDto.getPassword(),response);
-    }
 
     @Operation(summary = "회원 토큰 갱신 메서드", description = "회원 토큰 갱신 메서드 입니다.")
     @GetMapping("/token")

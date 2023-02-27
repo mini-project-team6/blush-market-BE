@@ -42,7 +42,10 @@ public class LoginController {
      */
     @GetMapping("/kakao/callback")
     public ApiResponseDto<SuccessResponse> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
-        return kakaoService.kakaoLogin(code, response);
+        log.info("response={}",response.getHeaderNames());
+        ApiResponseDto<SuccessResponse> successResponseApiResponseDto = kakaoService.kakaoLogin(code, response);
+
+        return successResponseApiResponseDto;
     }
 
     /**

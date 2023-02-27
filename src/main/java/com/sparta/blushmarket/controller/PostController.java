@@ -10,6 +10,7 @@ import com.sparta.blushmarket.entity.Member;
 import com.sparta.blushmarket.security.UserDetailsImpl;
 import com.sparta.blushmarket.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -19,11 +20,13 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "게시글", description = "게시글 API 입니다.")
 public class PostController {
 
     private final PostService postService;
 
     //게시글 작성
+    @Operation(summary = "게시글 작성 메서드", description = "게시글 작성 메서드 입니다.")
     @PostMapping("/api/post")
     public FileInfo createPost(@ModelAttribute PostRequestDto requestsDto, @AuthenticationPrincipal UserDetailsImpl userDetails
     ) throws IOException {
@@ -31,18 +34,21 @@ public class PostController {
     }
 
     //선택 게시글 수정
+    @Operation(summary = "게시글 수정 메서드", description = "게시글 수정 메서드 입니다.")
     @PutMapping("/api/post/{postId}")
     public ApiResponseDto<SuccessResponse> updatePost(@PathVariable("postId") Long postId, @RequestBody PostRequestDto requestsDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return postService.updatePost(postId, requestsDto, userDetails.getUser());
     }
 
     // 선택된 게시글 삭제
+    @Operation(summary = "선택 게시글 삭제 메서드", description = "선택 게시글 삭제 메서드 입니다.")
     @DeleteMapping("/api/post/{postId}")
     public ApiResponseDto<SuccessResponse> deletePost(@PathVariable("postId") Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return postService.deletePost(postId, userDetails.getUser());
     }
 
     // 선택된 게시글 상세보기
+    @Operation(summary = "특정 게시글 메서드", description = "특정 게시글 메서드 입니다.")
     @GetMapping("/api/post/{postId}")
     public ApiResponseDto<PostResponseDtoDetail> getPost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return postService.getPost(postId,userDetails.getUser());
@@ -55,7 +61,7 @@ public class PostController {
         return postService.getAllPosts(member);
     }
 
-    @Operation(summary = "게시글 전체보기 메서드", description = "게시글 전체보기 메서드 입니다.")
+    @Operation(summary = "게시글 키워드검색 메서드", description = "게시글 키워드검색 메서드 입니다.")
     @GetMapping("/api/posts/keyword/{keyword}")
     public ApiResponseDto<List<PostResponseDto>> getAllPosts(@PathVariable String keyword,@AuthenticationPrincipal UserDetailsImpl userDetails) {
         return postService.getPostsByKeyword(keyword,userDetails.getUser());

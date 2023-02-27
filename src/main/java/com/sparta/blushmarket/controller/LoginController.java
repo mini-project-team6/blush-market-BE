@@ -10,6 +10,7 @@ import com.sparta.blushmarket.service.MemberService;
 import com.sparta.blushmarket.service.oauth.KakaoService;
 import com.sparta.blushmarket.service.oauth.NaverService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping("/member")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "로그인", description = "로그인 API 입니다.")
 public class LoginController {
 
     private final MemberService memberService;
@@ -42,6 +44,7 @@ public class LoginController {
     /**
      * 카카오 로그인 기능 Controller
      */
+    @Operation(summary = "회원 카카오 로그인 메서드", description = "회원 카카오 로그인 메서드 입니다.")
     @GetMapping("/kakao/callback")
     public ApiResponseDto<SuccessResponse> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
         log.info("response={}",response.getHeaderNames());
@@ -53,6 +56,7 @@ public class LoginController {
     /**
      * 네이버 로그인 기능 Controller
      */
+    @Operation(summary = "회원 네이버 로그인 메서드", description = "회원 네이버 로그인 메서드 입니다.")
     @GetMapping("/naver/callback")
     public ApiResponseDto<SuccessResponse> naverLogin(@RequestParam String code,@RequestParam String state, HttpServletResponse response) throws JsonProcessingException {
         return naverService.naverLogin(code, state, response);

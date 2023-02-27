@@ -21,3 +21,17 @@ jwt:
 #  swagger-ui:
 #    path: /swagger-ui.html
 #    use-root-path: true
+
+cloud:
+  aws:
+    s3:
+      bucket: blush-market
+    credentials:
+      access-key: AKIAT7KMYIXV4MQ5KCPJ
+      secret-key: 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
+    region:
+      static: ap-northeast-2
+      auto: false
+    stack:
+      auto: false
+

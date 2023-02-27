@@ -40,15 +40,15 @@ public class PostController {
 
     // 선택된 게시글 상세보기
     @GetMapping("/api/post/{postId}")
-    public ApiResponseDto<PostResponseDto> getPost(@PathVariable Long postId) {
-        return postService.getPost(postId);
+    public ApiResponseDto<PostResponseDto> getPost(@PathVariable Long postId,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return postService.getPost(postId,userDetails.getUser());
     }
 
     // 게시글 전체 목록 조회
     @Operation(summary = "게시글 전체보기 메서드", description = "게시글 전체보기 메서드 입니다.")
     @GetMapping("/api/posts")
-    public ApiResponseDto<List<PostResponseDto>> getAllPosts() {
-        return postService.getAllPosts();
+    public ApiResponseDto<List<PostResponseDto>> getAllPosts(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return postService.getAllPosts(userDetails.getUser());
     }
 
 }

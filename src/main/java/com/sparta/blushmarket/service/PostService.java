@@ -10,6 +10,7 @@ import com.sparta.blushmarket.entity.ExceptionEnum;
 import com.sparta.blushmarket.entity.Member;
 import com.sparta.blushmarket.entity.Post;
 import com.sparta.blushmarket.exception.CustomException;
+import com.sparta.blushmarket.repository.LikeRepository;
 import com.sparta.blushmarket.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,7 @@ import java.util.Optional;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final LikeRepository likeRepository;
 
     //게시글 작성
     @Transactional
@@ -54,6 +56,7 @@ public class PostService {
         if (found.isEmpty()) { // 일치하는 게시물이 없다면
             throw new CustomException(ExceptionEnum.NOT_EXIST_POST);
         }
+
 
         // 게시글 id 와 사용자 정보 일치한다면, 게시글 수정
         post.get().update(requestsDto, member);
@@ -86,28 +89,40 @@ public class PostService {
 
     //선택된 게시글 상세보기
     @Transactional(readOnly = true)
-    public ApiResponseDto<PostResponseDto> getPost(Long id) {
+    public ApiResponseDto<PostResponseDto> getPost(Long id,Member member) {
+        Boolean isLike=false;
         // Id에 해당하는 게시글이 있는지 확인
         Optional<Post> post = postRepository.findById(id);
         if (post.isEmpty()) { // 해당 게시글이 없다면
             throw new CustomException(ExceptionEnum.NOT_EXIST_POST);
         }
 
+
         List<CommentResponseDto> commentList = post.get().getCommentList().stream().map(CommentResponseDto::from).sorted(Comparator.comparing(CommentResponseDto::getCreateAt).reversed()).toList();
         // board 를 responseDto 로 변환 후, ResponseEntity body 에 dto 담아 리턴
-        return ResponseUtils.ok(PostResponseDto.from(post.get(),commentList));
+        if (member != null&&likeRepository.findByPost_IdAndMember_Id(id,member.getId()).isPresent()){
+            isLike=true;
+
+        }
+
+        return ResponseUtils.ok(PostResponseDto.from(isLike,post.get(),commentList));
     }
 
 
     //게시글 전체 조회
-    public ApiResponseDto<List<PostResponseDto>> getAllPosts() {
+    public ApiResponseDto<List<PostResponseDto>> getAllPosts(Member member) {
         List<Post> postList = postRepository.findAllByOrderByCreatedAtDesc();
         List<PostResponseDto> responseDtoList = new ArrayList<>();
 
         for (Post post : postList) {
+            Boolean isLike=false;
             // List<BoardResponseDto> 로 만들기 위해 board 를 BoardResponseDto 로 만들고, list 에 dto 를 하나씩 넣는다.
             List<CommentResponseDto> commentList = post.getCommentList().stream().map(CommentResponseDto::from).sorted(Comparator.comparing(CommentResponseDto::getCreateAt).reversed()).toList();
-            responseDtoList.add(PostResponseDto.from(post,commentList));
+            if (member != null&&likeRepository.findByPost_IdAndMember_Id(post.getId(),member.getId()).isPresent()){
+                isLike=true;
+
+            }
+            responseDtoList.add(PostResponseDto.from(isLike,post,commentList));
         }
 
         return ResponseUtils.ok(responseDtoList);

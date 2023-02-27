@@ -1,5 +1,6 @@
 package com.sparta.blushmarket.dto;
 
+import com.sparta.blushmarket.entity.Likes;
 import com.sparta.blushmarket.entity.Post;
 import com.sparta.blushmarket.entity.SellState;
 import lombok.Builder;
@@ -15,22 +16,26 @@ public class PostResponseDto {
     private String content;
     private String image;
     private SellState sellState;
+
+    private boolean likes;
     private List<CommentResponseDto> commentList;
 
 
     @Builder
-    private PostResponseDto(Post post, List<CommentResponseDto> commentList) {
+    private PostResponseDto(boolean likes, Post post, List<CommentResponseDto> commentList) {
         this.id = post.getId();
         this.title = post.getTitle();
         this.content = post.getContent();
         this.image = post.getImage();
         this.sellState = post.getSellState();
+        this.likes = likes;
         this.commentList = commentList;
     }
 
-    public static PostResponseDto from(Post post,List<CommentResponseDto>  commentList) {
+    public static PostResponseDto from(boolean likes,Post post,List<CommentResponseDto>  commentList) {
         return PostResponseDto.builder()
                 .post(post)
+                .likes(likes)
                 .commentList(commentList)
                 .build();
 

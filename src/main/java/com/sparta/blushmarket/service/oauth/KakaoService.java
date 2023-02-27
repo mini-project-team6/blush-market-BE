@@ -60,7 +60,7 @@ public class KakaoService {
             refreshTokenRepository.save(newToken);
         }
 
-        setHeader(response, tokenDto);
+        jwtUtil.setHeader(response, tokenDto);
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "사용가능한 계정입니다"));
     }
 
@@ -162,8 +162,5 @@ public class KakaoService {
         }
         return kakaoUser;
     }
-    private void setHeader(HttpServletResponse response, TokenDto tokenDto) {
-        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, tokenDto.getAuthorization());
-        response.addHeader(JwtUtil.REFRESH_TOKEN, tokenDto.getRefresh_Token());
-    }
+
 }

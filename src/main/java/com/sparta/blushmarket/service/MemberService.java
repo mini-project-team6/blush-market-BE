@@ -70,7 +70,7 @@ public class MemberService {
             refreshTokenRepository.save(newToken);
         }
 
-        setHeader(response, tokenDto);
+        jwtUtil.setHeader(response, tokenDto);
 
 
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK,"로그인성공"));
@@ -86,12 +86,6 @@ public class MemberService {
             throw new CustomException(ExceptionEnum.DUPLICATE_USER);
         }
     }
-
-    private void setHeader(HttpServletResponse response, TokenDto tokenDto) {
-        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, tokenDto.getAuthorization());
-        response.addHeader(JwtUtil.REFRESH_TOKEN, tokenDto.getRefresh_Token());
-    }
-
 
     public ApiResponseDto<SuccessResponse> issueToken(HttpServletRequest request, HttpServletResponse response){
         String refreshToken = jwtUtil.resolveToken(request, "Refresh");

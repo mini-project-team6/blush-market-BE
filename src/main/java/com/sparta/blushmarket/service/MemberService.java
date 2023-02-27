@@ -39,7 +39,11 @@ public class MemberService {
         // 회원가입 유저가 있는지 확인하는 부분
         // 기존에 id체크하는 부분이 있어서 이 부분 관련 협의 필요
         memberCheck(userName);
-        memberRepository.save(new Member(userName,passwordEncoder.encode(password)));
+        memberRepository.save(
+                Member.builder()
+                        .name(userName)
+                        .password(passwordEncoder.encode(password))
+                        .build());
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK,"회원가입 성공"));
     }
 

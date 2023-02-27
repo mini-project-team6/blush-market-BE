@@ -128,4 +128,24 @@ public class PostService {
 
         return ResponseUtils.ok(responseDtoList);
     }
+
+    public ApiResponseDto<List<PostResponseDto>> getPostsByKeyword(String keyword, Member member) {
+        List<Post> postList = postRepository.findByTitleContainsOrderByCreatedAtDesc(keyword);
+        System.out.println(postList.size());
+
+        List<PostResponseDto> responseDtoList = new ArrayList<>();
+
+        for (Post post : postList) {
+            Boolean isLike=false;
+            // List<BoardResponseDto> 로 만들기 위해 board 를 BoardResponseDto 로 만들고, list 에 dto 를 하나씩 넣는다.
+
+            if (member != null&&likeRepository.findByPost_IdAndMember_Id(post.getId(),member.getId()).isPresent()){
+                isLike=true;
+
+            }
+            responseDtoList.add(PostResponseDto.from(isLike,post));
+        }
+
+        return ResponseUtils.ok(responseDtoList);
+    }
 }

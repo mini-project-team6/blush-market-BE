@@ -52,4 +52,10 @@ public class PostController {
         return postService.getAllPosts(userDetails.getUser());
     }
 
+    @Operation(summary = "게시글 전체보기 메서드", description = "게시글 전체보기 메서드 입니다.")
+    @GetMapping("/api/posts/keyword/{keyword}")
+    public ApiResponseDto<List<PostResponseDto>> getAllPosts(@PathVariable String keyword,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return postService.getPostsByKeyword(keyword,userDetails.getUser());
+    }
+
 }

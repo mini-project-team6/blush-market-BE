@@ -4,6 +4,7 @@ import com.sparta.blushmarket.common.ApiResponseDto;
 import com.sparta.blushmarket.common.SuccessResponse;
 import com.sparta.blushmarket.dto.PostRequestDto;
 import com.sparta.blushmarket.dto.PostResponseDto;
+import com.sparta.blushmarket.dto.PostResponseDtoDetail;
 import com.sparta.blushmarket.security.UserDetailsImpl;
 import com.sparta.blushmarket.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,7 +41,7 @@ public class PostController {
 
     // 선택된 게시글 상세보기
     @GetMapping("/api/post/{postId}")
-    public ApiResponseDto<PostResponseDto> getPost(@PathVariable Long postId,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ApiResponseDto<PostResponseDtoDetail> getPost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return postService.getPost(postId,userDetails.getUser());
     }
 

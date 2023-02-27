@@ -8,7 +8,7 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class PostResponseDto {
+public class PostResponseDtoDetail {
     private Long id;
     private String username;
     private String title;
@@ -17,11 +17,11 @@ public class PostResponseDto {
     private SellState sellState;
 
     private boolean likes;
-
+    private List<CommentResponseDto> commentList;
 
 
     @Builder
-    private PostResponseDto(boolean likes, Post post) {
+    private PostResponseDtoDetail(boolean likes, Post post, List<CommentResponseDto> commentList) {
         this.id = post.getId();
         this.username =post.getMember().getName();
         this.title = post.getTitle();
@@ -29,14 +29,14 @@ public class PostResponseDto {
         this.image = post.getImage();
         this.sellState = post.getSellState();
         this.likes = likes;
-
+        this.commentList = commentList;
     }
 
-    public static PostResponseDto from(boolean likes, Post post) {
-        return PostResponseDto.builder()
+    public static PostResponseDtoDetail from(boolean likes, Post post, List<CommentResponseDto>  commentList) {
+        return PostResponseDtoDetail.builder()
                 .post(post)
                 .likes(likes)
-
+                .commentList(commentList)
                 .build();
 
     }

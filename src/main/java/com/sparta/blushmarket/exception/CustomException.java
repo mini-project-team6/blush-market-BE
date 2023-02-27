@@ -1,6 +1,6 @@
 package com.sparta.blushmarket.exception;
 
-import com.sparta.blushmarket.entity.ExceptionEnum;
+import com.sparta.blushmarket.entity.enumclass.ExceptionEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

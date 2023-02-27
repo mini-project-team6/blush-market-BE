@@ -5,7 +5,7 @@ import com.sparta.blushmarket.common.ResponseUtils;
 import com.sparta.blushmarket.common.SuccessResponse;
 import com.sparta.blushmarket.dto.CommentRequestDto;
 import com.sparta.blushmarket.entity.Comment;
-import com.sparta.blushmarket.entity.ExceptionEnum;
+import com.sparta.blushmarket.entity.enumclass.ExceptionEnum;
 import com.sparta.blushmarket.entity.Member;
 import com.sparta.blushmarket.entity.Post;
 import com.sparta.blushmarket.exception.CustomException;
@@ -13,7 +13,6 @@ import com.sparta.blushmarket.repository.CommentRepository;
 import com.sparta.blushmarket.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

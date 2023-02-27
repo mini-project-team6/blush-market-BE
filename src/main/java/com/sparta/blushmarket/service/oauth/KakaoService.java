@@ -7,10 +7,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.blushmarket.common.ApiResponseDto;
 import com.sparta.blushmarket.common.ResponseUtils;
 import com.sparta.blushmarket.common.SuccessResponse;
+import com.sparta.blushmarket.dto.TokenDto;
 import com.sparta.blushmarket.dto.oauth.KakaoUserInfoDto;
 import com.sparta.blushmarket.entity.Member;
+import com.sparta.blushmarket.entity.RefreshToken;
 import com.sparta.blushmarket.jwt.JwtUtil;
 import com.sparta.blushmarket.repository.MemberRepository;
+import com.sparta.blushmarket.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -22,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -30,6 +34,7 @@ import java.util.UUID;
 public class KakaoService {
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
 
     public ApiResponseDto<SuccessResponse> kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
@@ -42,15 +47,20 @@ public class KakaoService {
         // 3. 필요시에 회원가입
         Member kakaoUser = registerKakaoUserIfNeeded(kakaoUserInfo);
 
+
         // 4. JWT 토큰 반환
-        String createToken = jwtUtil.createToken(kakaoUser.getName(),"Access");
-        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, createToken);
+        TokenDto tokenDto = jwtUtil.createAllToken(kakaoUser.getName());
 
-        // Cookie 생성 및 직접 브라우저에 Set
-        Cookie cookie = new Cookie(JwtUtil.AUTHORIZATION_HEADER, createToken.substring(7));
-        cookie.setPath("/");
-        response.addCookie(cookie);
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findAllByMemberId(kakaoUser.getName());
 
+        if(refreshToken.isPresent()) {
+            refreshTokenRepository.save(refreshToken.get().updateToken(tokenDto.getRefresh_Token()));
+        }else {
+            RefreshToken newToken = new RefreshToken(tokenDto.getRefresh_Token(), kakaoUser.getName());
+            refreshTokenRepository.save(newToken);
+        }
+
+        setHeader(response, tokenDto);
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "사용가능한 계정입니다"));
     }
 
@@ -151,5 +161,9 @@ public class KakaoService {
             memberRepository.save(kakaoUser);
         }
         return kakaoUser;
+    }
+    private void setHeader(HttpServletResponse response, TokenDto tokenDto) {
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, tokenDto.getAuthorization());
+        response.addHeader(JwtUtil.REFRESH_TOKEN, tokenDto.getRefresh_Token());
     }
 }

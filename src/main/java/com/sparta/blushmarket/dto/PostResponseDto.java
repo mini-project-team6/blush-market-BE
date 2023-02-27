@@ -18,6 +18,7 @@ public class PostResponseDto {
     private List<CommentResponseDto> commentList;
 
 
+
     @Builder
     private PostResponseDto(Post post, List<CommentResponseDto> commentList) {
         this.id = post.getId();

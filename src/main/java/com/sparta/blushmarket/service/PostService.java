@@ -1,21 +1,29 @@
 package com.sparta.blushmarket.service;
 
+
 import com.sparta.blushmarket.common.ApiResponseDto;
 import com.sparta.blushmarket.common.ResponseUtils;
 import com.sparta.blushmarket.common.SuccessResponse;
+import com.sparta.blushmarket.common.s3.FileUtil;
+import com.sparta.blushmarket.common.s3.Uploader;
 import com.sparta.blushmarket.dto.CommentResponseDto;
 import com.sparta.blushmarket.dto.PostRequestDto;
 import com.sparta.blushmarket.dto.PostResponseDto;
 import com.sparta.blushmarket.entity.ExceptionEnum;
+import com.sparta.blushmarket.entity.FileInfo;
 import com.sparta.blushmarket.entity.Member;
 import com.sparta.blushmarket.entity.Post;
 import com.sparta.blushmarket.exception.CustomException;
+import com.sparta.blushmarket.repository.FileInfoRepository;
 import com.sparta.blushmarket.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -23,20 +31,40 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PostService {
 
     private final PostRepository postRepository;
+    private final Uploader uploader;
+    private final FileInfoRepository fileInfoRepository;
 
     //게시글 작성
     @Transactional
-    public ApiResponseDto<SuccessResponse> createPost(PostRequestDto requestsDto, Member member) {
+    public FileInfo createPost(PostRequestDto postRequestDto, Member member) throws IOException {
+        String fileUrl = "";
+        FileInfo fileinfo1;
+        MultipartFile file = postRequestDto.getFile();
 
-        // 작성 글 저장
-        Post post = postRepository.save(Post.of(requestsDto, member));
+        try {
+            fileUrl = uploader.upload(file, "testImage");
+            FileInfo fileInfo = new FileInfo(
+                    FileUtil.cutFileName(file.getOriginalFilename(), 500), fileUrl);
 
-        // BoardResponseDto 로 변환 후 responseEntity body 에 담아 반환
-        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "작성완료"));
+            fileinfo1 =  fileInfoRepository.save(fileInfo);
+            postRequestDto.setImage(fileinfo1.getFileUrl());
+            //fileInfoRepository.save(fileInfo);
 
+        } catch (IOException ie) {
+            log.info("S3파일 저장 중 예외 발생");
+            throw ie;
+
+        } catch (Exception e) {
+            log.info("s3에 저장되었던 파일 삭제");
+            uploader.delete(fileUrl.substring(fileUrl.lastIndexOf(".com/") + 5));
+            throw e;
+        }
+        postRepository.save(Post.of(postRequestDto, member));
+        return fileinfo1;
     }
 
     // 선택된 게시글 수정
@@ -85,7 +113,7 @@ public class PostService {
     }
 
     //선택된 게시글 상세보기
-    @Transactional(readOnly = true)
+    @Transactional()
     public ApiResponseDto<PostResponseDto> getPost(Long id) {
         // Id에 해당하는 게시글이 있는지 확인
         Optional<Post> post = postRepository.findById(id);

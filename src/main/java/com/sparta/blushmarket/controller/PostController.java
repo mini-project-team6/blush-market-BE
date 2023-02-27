@@ -4,6 +4,7 @@ import com.sparta.blushmarket.common.ApiResponseDto;
 import com.sparta.blushmarket.common.SuccessResponse;
 import com.sparta.blushmarket.dto.PostRequestDto;
 import com.sparta.blushmarket.dto.PostResponseDto;
+import com.sparta.blushmarket.entity.FileInfo;
 import com.sparta.blushmarket.security.UserDetailsImpl;
 import com.sparta.blushmarket.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -21,20 +23,20 @@ public class PostController {
 
     //게시글 작성
     @PostMapping("/api/post")
-    public ApiResponseDto<SuccessResponse> createPost(@RequestBody PostRequestDto requestsDto, @AuthenticationPrincipal UserDetailsImpl userDetails
-    ) {
+    public FileInfo createPost(@ModelAttribute PostRequestDto requestsDto, @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) throws IOException {
         return postService.createPost(requestsDto, userDetails.getUser());
     }
 
     //선택 게시글 수정
     @PutMapping("/api/post/{postId}")
-    public ApiResponseDto<SuccessResponse> updatePost(@RequestBody PostRequestDto requestsDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return postService.createPost(requestsDto, userDetails.getUser());
+    public ApiResponseDto<SuccessResponse> updatePost(@PathVariable("postId") Long postId, @RequestBody PostRequestDto requestsDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return postService.updatePost(postId, requestsDto, userDetails.getUser());
     }
 
     // 선택된 게시글 삭제
     @DeleteMapping("/api/post/{postId}")
-    public ApiResponseDto<SuccessResponse> deletePost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ApiResponseDto<SuccessResponse> deletePost(@PathVariable("postId") Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return postService.deletePost(postId, userDetails.getUser());
     }
 

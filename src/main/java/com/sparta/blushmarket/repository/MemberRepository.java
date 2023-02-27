@@ -1,6 +1,5 @@
 package com.sparta.blushmarket.repository;
 
-import com.sparta.blushmarket.entity.LoginType;
 import com.sparta.blushmarket.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 

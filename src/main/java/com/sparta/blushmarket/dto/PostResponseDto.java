@@ -5,8 +5,6 @@ import com.sparta.blushmarket.entity.enumclass.SellState;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.List;
-
 @Getter
 public class PostResponseDto {
     private Long id;

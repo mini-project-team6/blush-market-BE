@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
@@ -65,4 +66,9 @@ public class MemberController {
         return memberService.login(requestDto.getName(),requestDto.getPassword(),response);
     }
 
+    @Operation(summary = "회원 토큰 갱신 메서드", description = "회원 토큰 갱신 메서드 입니다.")
+    @GetMapping("/token")
+    public  ApiResponseDto<SuccessResponse> issuedToken(HttpServletRequest request, HttpServletResponse response){
+        return memberService.issueToken(request,response);
+    }
 }

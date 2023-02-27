@@ -3,11 +3,14 @@ package com.sparta.blushmarket.service;
 import com.sparta.blushmarket.common.ApiResponseDto;
 import com.sparta.blushmarket.common.ResponseUtils;
 import com.sparta.blushmarket.common.SuccessResponse;
+import com.sparta.blushmarket.dto.TokenDto;
 import com.sparta.blushmarket.entity.ExceptionEnum;
 import com.sparta.blushmarket.entity.Member;
+import com.sparta.blushmarket.entity.RefreshToken;
 import com.sparta.blushmarket.exception.CustomException;
 import com.sparta.blushmarket.jwt.JwtUtil;
 import com.sparta.blushmarket.repository.MemberRepository;
+import com.sparta.blushmarket.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
 
@@ -25,6 +29,7 @@ import java.util.Optional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
 
     private final PasswordEncoder passwordEncoder;
@@ -48,7 +53,22 @@ public class MemberService {
         if(findMemeber.isEmpty() || !passwordEncoder.matches(password,findMemeber.get().getPassword())){
             throw new CustomException(ExceptionEnum.PASSWORD_WRONG);
         }
-        response.addHeader(JwtUtil.AUTHORIZATION_HEADER,jwtUtil.createToken(findMemeber.get().getName()));
+//        response.addHeader(JwtUtil.AUTHORIZATION_HEADER,jwtUtil.createToken(findMemeber.get().getName()));
+
+        TokenDto tokenDto = jwtUtil.createAllToken(userName);
+
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findAllByMemberId(userName);
+
+        if(refreshToken.isPresent()) {
+            refreshTokenRepository.save(refreshToken.get().updateToken(tokenDto.getRefresh_Token()));
+        }else {
+            RefreshToken newToken = new RefreshToken(tokenDto.getRefresh_Token(), userName);
+            refreshTokenRepository.save(newToken);
+        }
+
+        setHeader(response, tokenDto);
+
+
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK,"로그인성공"));
     }
 
@@ -63,5 +83,19 @@ public class MemberService {
         }
     }
 
+    private void setHeader(HttpServletResponse response, TokenDto tokenDto) {
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, tokenDto.getAuthorization());
+        response.addHeader(JwtUtil.REFRESH_TOKEN, tokenDto.getRefresh_Token());
+    }
 
+
+    public ApiResponseDto<SuccessResponse> issueToken(HttpServletRequest request, HttpServletResponse response){
+        String refreshToken = jwtUtil.resolveToken(request, "Refresh");
+        if(!jwtUtil.refreshTokenValidation(refreshToken)){
+            throw new CustomException(ExceptionEnum.JWT_EXPIRED_TOKEN);
+        }
+
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(jwtUtil.getUserId(refreshToken), "Access"));
+        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK,"갱신 성공"));
+    }
 }

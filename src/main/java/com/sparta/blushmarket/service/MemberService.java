@@ -96,4 +96,8 @@ public class MemberService {
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(jwtUtil.getUserId(refreshToken), "Access"));
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK,"갱신 성공"));
     }
+    public ApiResponseDto<SuccessResponse> logout(Member member) {
+        refreshTokenRepository.deleteByMemberId(member.getName());
+        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK,"로그아웃 성공"));
+    }
 }

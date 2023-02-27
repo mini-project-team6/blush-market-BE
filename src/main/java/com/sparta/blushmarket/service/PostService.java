@@ -105,6 +105,12 @@ public class PostService {
             throw new CustomException(ExceptionEnum.NOT_EXIST_POST);
         }
 
+        // 이미지 reposit 이미지 삭제
+        FileInfo fileInfo = fileInfoRepository
+                .findById(id).orElseThrow(() -> new RuntimeException("존재 하지 않는 파일"));
+        fileInfoRepository.deleteById(id);
+        uploader.delete(fileInfo.S3key());
+
         // 게시글 id 와 사용자 정보 일치한다면, 게시글 수정
         postRepository.deleteById(id);
 
@@ -122,6 +128,7 @@ public class PostService {
         }
 
         List<CommentResponseDto> commentList = post.get().getCommentList().stream().map(CommentResponseDto::from).sorted(Comparator.comparing(CommentResponseDto::getCreateAt).reversed()).toList();
+
         // board 를 responseDto 로 변환 후, ResponseEntity body 에 dto 담아 리턴
         return ResponseUtils.ok(PostResponseDto.from(post.get(),commentList));
     }

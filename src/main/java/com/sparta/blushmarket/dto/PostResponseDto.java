@@ -1,5 +1,6 @@
 package com.sparta.blushmarket.dto;
 
+import com.sparta.blushmarket.entity.FileInfo;
 import com.sparta.blushmarket.entity.Post;
 import com.sparta.blushmarket.entity.SellState;
 import lombok.Builder;
@@ -16,6 +17,7 @@ public class PostResponseDto {
     private String image;
     private SellState sellState;
     private List<CommentResponseDto> commentList;
+
 
 
 

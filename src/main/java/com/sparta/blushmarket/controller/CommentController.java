@@ -22,20 +22,20 @@ public class CommentController {
     private final CommentService commentService;
 
     @Operation(summary = "댓글 추가 메서드", description = "댓글 추가 메서드 입니다.")
-    @PostMapping("/comment/{id}")
+    @PostMapping("/post/comment/{id}")
     public ApiResponseDto<SuccessResponse> addComment(@PathVariable Long id, @RequestBody CommentRequestDto commentRequestDto,@AuthenticationPrincipal UserDetailsImpl userDetails){
         return commentService.addComment(id,commentRequestDto,userDetails.getUser());
 
     }
 
     @Operation(summary = "댓글 수정 메서드", description = "댓글 수정 메서드 입니다.")
-    @PutMapping("/comment/{id}")
+    @PutMapping("/post/comment/{id}")
     public ApiResponseDto<SuccessResponse> updateComment(@PathVariable Long id, @RequestBody CommentRequestDto commentRequestDto,@AuthenticationPrincipal UserDetailsImpl userDetails){
         return commentService.updateComment(id,commentRequestDto,userDetails.getUser());
 
     }
 
-    @DeleteMapping("/comment/{id}")
+    @DeleteMapping("/post/comment/{id}")
     @Operation(summary = "댓글 삭제 메서드", description = "댓글 삭제 메서드 입니다.")
     public ApiResponseDto<SuccessResponse> updateComment(@PathVariable Long id,@AuthenticationPrincipal UserDetailsImpl userDetails){
         return commentService.deleteComment(id,userDetails.getUser());

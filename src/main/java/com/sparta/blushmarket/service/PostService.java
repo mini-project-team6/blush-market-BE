@@ -14,6 +14,7 @@ import com.sparta.blushmarket.entity.FileInfo;
 import com.sparta.blushmarket.entity.Member;
 import com.sparta.blushmarket.entity.Post;
 import com.sparta.blushmarket.entity.enumclass.ExceptionEnum;
+import com.sparta.blushmarket.entity.enumclass.SellState;
 import com.sparta.blushmarket.exception.CustomException;
 import com.sparta.blushmarket.repository.FileInfoRepository;
 import com.sparta.blushmarket.repository.LikeRepository;
@@ -169,9 +170,14 @@ public class PostService {
         return ResponseUtils.ok(responseDtoList);
     }
 
-    public ApiResponseDto<List<PostResponseDto>> getPostsByKeyword(String keyword, UserDetailsImpl userDetails) {
+    public ApiResponseDto<List<PostResponseDto>> getPostsByKeyword(String keyword,Integer sellstatus, UserDetailsImpl userDetails) {
         Member member = null;
-        List<Post> postList = postRepository.findByTitleContainsOrderByCreatedAtDesc(keyword);
+        List<Post> postList;
+        if (sellstatus!=null){
+            postList = postRepository.findByTitleContainsAndSellStateOrderByCreatedAtDesc(keyword, SellState.fromInteger(sellstatus));
+        }else {
+            postList = postRepository.findByTitleContainsOrderByCreatedAtDesc(keyword);
+        }
         System.out.println(postList.size());
 
         List<PostResponseDto> responseDtoList = new ArrayList<>();

@@ -38,7 +38,7 @@ public class CommentService {
         if(commentRepository.findById(id).isEmpty()){
             throw new CustomException(ExceptionEnum.NOT_EXIST_COMMENT);
         }
-        Comment comment = commentRepository.findByIdAndAndMember_Id(id, member.getId());
+        Comment comment = commentRepository.findByIdAndMember_Id(id, member.getId());
         if(comment==null){
             throw new CustomException(ExceptionEnum.NOT_MY_CONTENT_MODIFY);
         }
@@ -48,11 +48,12 @@ public class CommentService {
 
     }
 
+    @Transactional
     public ApiResponseDto<SuccessResponse> deleteComment(Long id, Member member) {
         if(commentRepository.findById(id).isEmpty()){
             throw new CustomException(ExceptionEnum.NOT_EXIST_COMMENT);
         }
-        Comment comment = commentRepository.findByIdAndAndMember_Id(id, member.getId());
+        Comment comment = commentRepository.findByIdAndMember_Id(id, member.getId());
         if(comment==null){
             throw new CustomException(ExceptionEnum.NOT_MY_CONTENT_DELETE);
         }

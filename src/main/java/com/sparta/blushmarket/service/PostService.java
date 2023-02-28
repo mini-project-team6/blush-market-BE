@@ -10,26 +10,30 @@ import com.sparta.blushmarket.dto.CommentResponseDto;
 import com.sparta.blushmarket.dto.PostRequestDto;
 import com.sparta.blushmarket.dto.PostResponseDto;
 import com.sparta.blushmarket.dto.PostResponseDtoDetail;
+import com.sparta.blushmarket.entity.Comment;
 import com.sparta.blushmarket.entity.FileInfo;
 import com.sparta.blushmarket.entity.Member;
 import com.sparta.blushmarket.entity.Post;
 import com.sparta.blushmarket.entity.enumclass.ExceptionEnum;
 import com.sparta.blushmarket.entity.enumclass.SellState;
 import com.sparta.blushmarket.exception.CustomException;
+import com.sparta.blushmarket.repository.CommentRepository;
 import com.sparta.blushmarket.repository.FileInfoRepository;
 import com.sparta.blushmarket.repository.LikeRepository;
 import com.sparta.blushmarket.repository.PostRepository;
 import com.sparta.blushmarket.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.expression.spel.ast.OpInc;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +43,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final Uploader uploader;
     private final FileInfoRepository fileInfoRepository;
+    private final CommentRepository commentRepository;
     private final LikeRepository likeRepository;
 
 
@@ -59,7 +64,7 @@ public class PostService {
         try {
             fileUrl = uploader.upload(file, "testImage");
             fileInfo = new FileInfo(
-                    FileUtil.cutFileName(Objects.requireNonNull(file.getOriginalFilename()), 500), fileUrl);
+                    FileUtil.cutFileName(file.getOriginalFilename(), 500), fileUrl);
 
             postRequestDto.setImage(fileInfo.getFileUrl());
             postRequestDto.setOriginalFilename(file.getOriginalFilename());
@@ -83,12 +88,12 @@ public class PostService {
     @Transactional
     public ApiResponseDto<SuccessResponse> updatePost(Long id, PostRequestDto requestsDto, Member member) throws IOException {
         String fileUrl = "";
-        FileInfo fileInfo = new FileInfo(requestsDto.getOriginalFilename(), requestsDto.getImage());
-        MultipartFile file = requestsDto.getFile();
-        Optional<Post> post = postRepository.findById(id);
+        FileInfo fileInfo;
 
+        MultipartFile file = requestsDto.getFile();
 
         // 선택한 게시글이 DB에 있는지 확인
+        Optional<Post> post = postRepository.findById(id);
         if (post.isEmpty()) {
             throw new CustomException(ExceptionEnum.NOT_MY_CONTENT_MODIFY);
         }
@@ -98,15 +103,10 @@ public class PostService {
         if (found.isEmpty()) { // 일치하는 게시물이 없다면
             throw new CustomException(ExceptionEnum.NOT_EXIST_POST);
         }
-        // 기존 이미지 삭제
-
-        FileInfo fileInfo1 = new FileInfo("삭제될 이미지", post.get().getImage());
-        if (!(fileInfo1.getFileUrl() == null)) {
-            uploader.delete(fileInfo1.S3key());
-        }
 
         //이미지 비어있을시
         if (file.isEmpty()) {
+
             post.get().update(requestsDto, member);
             return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "수정 완료"));
         }
@@ -114,7 +114,7 @@ public class PostService {
 
         fileUrl = uploader.upload(file, "testImage");
         fileInfo = new FileInfo(
-                FileUtil.cutFileName(Objects.requireNonNull(file.getOriginalFilename()), 500), fileUrl);
+                FileUtil.cutFileName(file.getOriginalFilename(), 500), fileUrl);
 
         requestsDto.setImage(fileInfo.getFileUrl());
         post.get().update(requestsDto, member);
@@ -138,15 +138,10 @@ public class PostService {
             throw new CustomException(ExceptionEnum.NOT_EXIST_POST);
         }
         // S3 이미지 삭제
-
-        Post post = postRepository
-                .findById(id).orElseThrow(() -> new RuntimeException("존재 하지 않는 파일"));
-        if (post.getImage() == null) {
-            postRepository.deleteById(id);
-            return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "삭제 성공"));
-        }
-        FileInfo fileInfo = new FileInfo(post.getOriginalFilename(), post.getImage());
-        uploader.delete(fileInfo.S3key());
+//        Post post = postRepository
+//                .findById(id).orElseThrow(() -> new RuntimeException("존재 하지 않는 파일"));
+//        FileInfo fileInfo = new FileInfo(post.getOriginalFilename(), post.getImage());
+//        uploader.delete(fileInfo.S3key());
 
         // 게시글 id 와 사용자 정보 일치한다면, 게시글 수정
         postRepository.deleteById(id);
@@ -158,8 +153,9 @@ public class PostService {
     //선택된 게시글 상세보기
     @Transactional()
     public ApiResponseDto<PostResponseDtoDetail> getPost(Long id, UserDetailsImpl userDetails) {
-        Boolean isLike = false;
-        Boolean ismine = false;
+        boolean isLike = false;
+        boolean ismine = false;
+
         Member member = null;
         // Id에 해당하는 게시글이 있는지 확인
         Optional<Post> post = postRepository.findById(id);
@@ -169,8 +165,22 @@ public class PostService {
         if (userDetails != null) {
             member = userDetails.getUser();
         }
+//        List<CommentResponseDto> commentList = post.get().getCommentList().stream().map(CommentResponseDto::from).sorted(Comparator.comparing(CommentResponseDto::getCreateAt).reversed()).toList();
+//
+        List<CommentResponseDto> commentList = new ArrayList<>();
+        List<Comment> commentListTmp = post.get().getCommentList().stream().sorted(Comparator.comparing(Comment::getCreatedAt).reversed()).toList();
 
-        List<CommentResponseDto> commentList = post.get().getCommentList().stream().map(CommentResponseDto::from).sorted(Comparator.comparing(CommentResponseDto::getCreateAt).reversed()).toList();
+
+        for (Comment comment : commentListTmp) {
+            boolean ismineComment = false;
+            if (member != null && commentRepository.findByIdAndPost_IdAndMember_Id(comment.getId(),id, member.getId()).isPresent()) {
+                ismineComment = true;
+            }
+
+            commentList.add(CommentResponseDto.from(comment, ismineComment));
+        }
+
+
         // board 를 responseDto 로 변환 후, ResponseEntity body 에 dto 담아 리턴
         if (member != null && likeRepository.findByPost_IdAndMember_Id(id, member.getId()).isPresent()) {
             isLike = true;

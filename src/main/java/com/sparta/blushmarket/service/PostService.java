@@ -146,8 +146,10 @@ public class PostService {
         if (member!= null&&postRepository.findByIdAndMember(id,member).isPresent()){
             ismine=true;
         }
+        int sellcount = postRepository.countByMember_IdAndSellState(post.get().getMember().getId(),SellState.SOLDOUT);
 
-        return ResponseUtils.ok(PostResponseDtoDetail.from(post.get(),commentList,isLike,ismine));
+
+        return ResponseUtils.ok(PostResponseDtoDetail.from(post.get(),commentList,isLike,ismine,sellcount));
     }
 
 
@@ -164,7 +166,8 @@ public class PostService {
                 isLike=true;
 
             }
-            responseDtoList.add(PostResponseDto.from(isLike,post));
+            int sellcount = postRepository.countByMember_IdAndSellState(post.getMember().getId(),SellState.SOLDOUT);
+            responseDtoList.add(PostResponseDto.from(isLike,post,sellcount));
         }
 
         return ResponseUtils.ok(responseDtoList);
@@ -192,7 +195,8 @@ public class PostService {
                 isLike=true;
 
             }
-            responseDtoList.add(PostResponseDto.from(isLike,post));
+            int sellcount = postRepository.countByMember_IdAndSellState(post.getMember().getId(),SellState.SOLDOUT);
+            responseDtoList.add(PostResponseDto.from(isLike,post,sellcount));
         }
 
         return ResponseUtils.ok(responseDtoList);

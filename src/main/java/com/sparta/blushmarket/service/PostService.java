@@ -18,6 +18,7 @@ import com.sparta.blushmarket.exception.CustomException;
 import com.sparta.blushmarket.repository.FileInfoRepository;
 import com.sparta.blushmarket.repository.LikeRepository;
 import com.sparta.blushmarket.repository.PostRepository;
+import com.sparta.blushmarket.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -123,14 +124,17 @@ public class PostService {
 
     //선택된 게시글 상세보기
     @Transactional()
-    public ApiResponseDto<PostResponseDtoDetail> getPost(Long id, Member member) {
+    public ApiResponseDto<PostResponseDtoDetail> getPost(Long id, UserDetailsImpl userDetails) {
         Boolean isLike=false;
+        Member member =null;
         // Id에 해당하는 게시글이 있는지 확인
         Optional<Post> post = postRepository.findById(id);
         if (post.isEmpty()) { // 해당 게시글이 없다면
             throw new CustomException(ExceptionEnum.NOT_EXIST_POST);
         }
-
+        if (userDetails !=null) {
+            member = userDetails.getUser();
+        }
 
         List<CommentResponseDto> commentList = post.get().getCommentList().stream().map(CommentResponseDto::from).sorted(Comparator.comparing(CommentResponseDto::getCreateAt).reversed()).toList();
         // board 를 responseDto 로 변환 후, ResponseEntity body 에 dto 담아 리턴
@@ -162,12 +166,15 @@ public class PostService {
         return ResponseUtils.ok(responseDtoList);
     }
 
-    public ApiResponseDto<List<PostResponseDto>> getPostsByKeyword(String keyword, Member member) {
+    public ApiResponseDto<List<PostResponseDto>> getPostsByKeyword(String keyword, UserDetailsImpl userDetails) {
+        Member member = null;
         List<Post> postList = postRepository.findByTitleContainsOrderByCreatedAtDesc(keyword);
         System.out.println(postList.size());
 
         List<PostResponseDto> responseDtoList = new ArrayList<>();
-
+        if (userDetails !=null) {
+            member = userDetails.getUser();
+        }
         for (Post post : postList) {
             Boolean isLike=false;
             // List<BoardResponseDto> 로 만들기 위해 board 를 BoardResponseDto 로 만들고, list 에 dto 를 하나씩 넣는다.

@@ -41,15 +41,17 @@ public class PostService {
     private final FileInfoRepository fileInfoRepository;
     private final LikeRepository likeRepository;
 
+
     //게시글 작성
     @Transactional
     public ApiResponseDto<SuccessResponse> createPost(PostRequestDto postRequestDto, Member member) throws IOException {
         String fileUrl = "";
-        FileInfo fileinfo1;
         FileInfo fileInfo;
+
         MultipartFile file = postRequestDto.getFile();
 
-        if (postRequestDto.getFile() == null){
+        if (file.isEmpty()){
+
             postRepository.save(Post.of(postRequestDto, member));
             return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "등록완료"));
         }
@@ -58,7 +60,6 @@ public class PostService {
             fileUrl = uploader.upload(file, "testImage");
             fileInfo = new FileInfo(
                     FileUtil.cutFileName(file.getOriginalFilename(), 500), fileUrl);
-
 
             postRequestDto.setImage(fileInfo.getFileUrl());
 

@@ -5,7 +5,6 @@ import com.sparta.blushmarket.common.SuccessResponse;
 import com.sparta.blushmarket.dto.PostRequestDto;
 import com.sparta.blushmarket.dto.PostResponseDto;
 import com.sparta.blushmarket.dto.PostResponseDtoDetail;
-import com.sparta.blushmarket.entity.FileInfo;
 import com.sparta.blushmarket.entity.Member;
 import com.sparta.blushmarket.security.UserDetailsImpl;
 import com.sparta.blushmarket.service.PostService;
@@ -28,15 +27,15 @@ public class PostController {
     //게시글 작성
     @Operation(summary = "게시글 작성 메서드", description = "게시글 작성 메서드 입니다.")
     @PostMapping("/api/post")
-    public FileInfo createPost(@ModelAttribute PostRequestDto requestsDto, @AuthenticationPrincipal UserDetailsImpl userDetails
-    ) throws IOException {
+    public ApiResponseDto<SuccessResponse> createPost(@ModelAttribute PostRequestDto requestsDto, @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) throws Exception {
         return postService.createPost(requestsDto, userDetails.getUser());
     }
 
     //선택 게시글 수정
     @Operation(summary = "게시글 수정 메서드", description = "게시글 수정 메서드 입니다.")
     @PutMapping("/api/post/{postId}")
-    public ApiResponseDto<SuccessResponse> updatePost(@PathVariable("postId") Long postId, @RequestBody PostRequestDto requestsDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ApiResponseDto<SuccessResponse> updatePost(@PathVariable("postId") Long postId, @ModelAttribute PostRequestDto requestsDto, @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
         return postService.updatePost(postId, requestsDto, userDetails.getUser());
     }
 

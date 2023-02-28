@@ -25,8 +25,11 @@ public class Post extends Timestamped{
     @Column(nullable = false)
     private String content;
 
-    @Column(nullable = false)
+    @Column()
     private String image;
+
+    @Column()
+    private String originalFilename;
 
     @Column(nullable = false)
     private SellState sellState;
@@ -43,6 +46,7 @@ public class Post extends Timestamped{
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
         this.image = requestDto.getImage();
+        this.originalFilename = requestDto.getOriginalFilename();
         this.sellState = SellState.fromInteger(requestDto.getSellState());
         this.member = member;
 
@@ -59,8 +63,10 @@ public class Post extends Timestamped{
     public void update(PostRequestDto requestDto, Member member) {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
+        this.image = requestDto.getImage();
         this.sellState = SellState.fromInteger(requestDto.getSellState());
         this.member = member;
+
 
     }
 

@@ -10,12 +10,14 @@ import com.sparta.blushmarket.dto.CommentResponseDto;
 import com.sparta.blushmarket.dto.PostRequestDto;
 import com.sparta.blushmarket.dto.PostResponseDto;
 import com.sparta.blushmarket.dto.PostResponseDtoDetail;
+import com.sparta.blushmarket.entity.Comment;
 import com.sparta.blushmarket.entity.FileInfo;
 import com.sparta.blushmarket.entity.Member;
 import com.sparta.blushmarket.entity.Post;
 import com.sparta.blushmarket.entity.enumclass.ExceptionEnum;
 import com.sparta.blushmarket.entity.enumclass.SellState;
 import com.sparta.blushmarket.exception.CustomException;
+import com.sparta.blushmarket.repository.CommentRepository;
 import com.sparta.blushmarket.repository.FileInfoRepository;
 import com.sparta.blushmarket.repository.LikeRepository;
 import com.sparta.blushmarket.repository.PostRepository;
@@ -41,6 +43,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final Uploader uploader;
     private final FileInfoRepository fileInfoRepository;
+    private final CommentRepository commentRepository;
     private final LikeRepository likeRepository;
 
 
@@ -52,7 +55,7 @@ public class PostService {
 
         MultipartFile file = postRequestDto.getFile();
 
-        if (file.isEmpty()){
+        if (file.isEmpty()) {
 
             postRepository.save(Post.of(postRequestDto, member));
             return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "등록완료"));
@@ -71,15 +74,14 @@ public class PostService {
             log.info("S3파일 저장 중 예외 발생");
             throw ie;
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.info("s3에 저장되었던 파일 삭제");
             uploader.delete(fileUrl.substring(fileUrl.lastIndexOf(".com/") + 5));
             throw e;
         }
 
         postRepository.save(Post.of(postRequestDto, member));
-        return  ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "작성 완료"));
+        return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "작성 완료"));
     }
 
     // 선택된 게시글 수정
@@ -103,7 +105,7 @@ public class PostService {
         }
 
         //이미지 비어있을시
-        if (file.isEmpty()){
+        if (file.isEmpty()) {
 
             post.get().update(requestsDto, member);
             return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "수정 완료"));
@@ -151,30 +153,45 @@ public class PostService {
     //선택된 게시글 상세보기
     @Transactional()
     public ApiResponseDto<PostResponseDtoDetail> getPost(Long id, UserDetailsImpl userDetails) {
-        Boolean isLike=false;
-        Boolean ismine=false;
-        Member member =null;
+        boolean isLike = false;
+        boolean ismine = false;
+
+        Member member = null;
         // Id에 해당하는 게시글이 있는지 확인
         Optional<Post> post = postRepository.findById(id);
         if (post.isEmpty()) { // 해당 게시글이 없다면
             throw new CustomException(ExceptionEnum.NOT_EXIST_POST);
         }
-        if (userDetails !=null) {
+        if (userDetails != null) {
             member = userDetails.getUser();
         }
+//        List<CommentResponseDto> commentList = post.get().getCommentList().stream().map(CommentResponseDto::from).sorted(Comparator.comparing(CommentResponseDto::getCreateAt).reversed()).toList();
+//
+        List<CommentResponseDto> commentList = new ArrayList<>();
+        List<Comment> commentListTmp = post.get().getCommentList().stream().sorted(Comparator.comparing(Comment::getCreatedAt).reversed()).toList();
 
-        List<CommentResponseDto> commentList = post.get().getCommentList().stream().map(CommentResponseDto::from).sorted(Comparator.comparing(CommentResponseDto::getCreateAt).reversed()).toList();
+
+        for (Comment comment : commentListTmp) {
+            boolean ismineComment = false;
+            if (member != null && commentRepository.findByIdAndPost_IdAndMember_Id(comment.getId(),id, member.getId()).isPresent()) {
+                ismineComment = true;
+            }
+
+            commentList.add(CommentResponseDto.from(comment, ismineComment));
+        }
+
+
         // board 를 responseDto 로 변환 후, ResponseEntity body 에 dto 담아 리턴
-        if (member != null&&likeRepository.findByPost_IdAndMember_Id(id,member.getId()).isPresent()){
-            isLike=true;
+        if (member != null && likeRepository.findByPost_IdAndMember_Id(id, member.getId()).isPresent()) {
+            isLike = true;
         }
-        if (member!= null&&postRepository.findByIdAndMember(id,member).isPresent()){
-            ismine=true;
+        if (member != null && postRepository.findByIdAndMember(id, member).isPresent()) {
+            ismine = true;
         }
-        int sellcount = postRepository.countByMember_IdAndSellState(post.get().getMember().getId(),SellState.SOLDOUT);
+        int sellcount = postRepository.countByMember_IdAndSellState(post.get().getMember().getId(), SellState.SOLDOUT);
 
 
-        return ResponseUtils.ok(PostResponseDtoDetail.from(post.get(),commentList,isLike,ismine,sellcount));
+        return ResponseUtils.ok(PostResponseDtoDetail.from(post.get(), commentList, isLike, ismine, sellcount));
     }
 
 
@@ -184,44 +201,44 @@ public class PostService {
         List<PostResponseDto> responseDtoList = new ArrayList<>();
 
         for (Post post : postList) {
-            Boolean isLike=false;
+            Boolean isLike = false;
             // List<BoardResponseDto> 로 만들기 위해 board 를 BoardResponseDto 로 만들고, list 에 dto 를 하나씩 넣는다.
 
-            if (member != null&&likeRepository.findByPost_IdAndMember_Id(post.getId(),member.getId()).isPresent()){
-                isLike=true;
+            if (member != null && likeRepository.findByPost_IdAndMember_Id(post.getId(), member.getId()).isPresent()) {
+                isLike = true;
 
             }
-            int sellcount = postRepository.countByMember_IdAndSellState(post.getMember().getId(),SellState.SOLDOUT);
-            responseDtoList.add(PostResponseDto.from(isLike,post,sellcount));
+            int sellcount = postRepository.countByMember_IdAndSellState(post.getMember().getId(), SellState.SOLDOUT);
+            responseDtoList.add(PostResponseDto.from(isLike, post, sellcount));
         }
 
         return ResponseUtils.ok(responseDtoList);
     }
 
-    public ApiResponseDto<List<PostResponseDto>> getPostsByKeyword(String keyword,Integer sellstatus, UserDetailsImpl userDetails) {
+    public ApiResponseDto<List<PostResponseDto>> getPostsByKeyword(String keyword, Integer sellstatus, UserDetailsImpl userDetails) {
         Member member = null;
         List<Post> postList;
-        if (sellstatus!=null){
+        if (sellstatus != null) {
             postList = postRepository.findByTitleContainsAndSellStateOrderByCreatedAtDesc(keyword, SellState.fromInteger(sellstatus));
-        }else {
+        } else {
             postList = postRepository.findByTitleContainsOrderByCreatedAtDesc(keyword);
         }
         System.out.println(postList.size());
 
         List<PostResponseDto> responseDtoList = new ArrayList<>();
-        if (userDetails !=null) {
+        if (userDetails != null) {
             member = userDetails.getUser();
         }
         for (Post post : postList) {
-            Boolean isLike=false;
+            Boolean isLike = false;
             // List<BoardResponseDto> 로 만들기 위해 board 를 BoardResponseDto 로 만들고, list 에 dto 를 하나씩 넣는다.
 
-            if (member != null&&likeRepository.findByPost_IdAndMember_Id(post.getId(),member.getId()).isPresent()){
-                isLike=true;
+            if (member != null && likeRepository.findByPost_IdAndMember_Id(post.getId(), member.getId()).isPresent()) {
+                isLike = true;
 
             }
-            int sellcount = postRepository.countByMember_IdAndSellState(post.getMember().getId(),SellState.SOLDOUT);
-            responseDtoList.add(PostResponseDto.from(isLike,post,sellcount));
+            int sellcount = postRepository.countByMember_IdAndSellState(post.getMember().getId(), SellState.SOLDOUT);
+            responseDtoList.add(PostResponseDto.from(isLike, post, sellcount));
         }
 
         return ResponseUtils.ok(responseDtoList);

@@ -17,7 +17,10 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<ApiResponseDto<ErrorResponse>> customException(CustomException e){
 
 //        return ErrorResponse.toResponseEntity(e.getExceptionEnum());
-        return ResponseEntity.badRequest().body(ResponseUtils.error(ErrorResponse.of(e.getExceptionEnum().getCode(),e.getExceptionEnum().getMsg())));
+        return ResponseEntity.status(e.getExceptionEnum().getCode())
+                .body(ResponseUtils.error(
+                        ErrorResponse.of(e.getExceptionEnum().getCode(),e.getExceptionEnum().getMsg())
+                ));
 
     }
 

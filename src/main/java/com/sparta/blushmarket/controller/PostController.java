@@ -35,7 +35,7 @@ public class PostController {
     //선택 게시글 수정
     @Operation(summary = "게시글 수정 메서드", description = "게시글 수정 메서드 입니다.")
     @PutMapping("/api/post/{postId}")
-    public ApiResponseDto<SuccessResponse> updatePost(@PathVariable("postId") Long postId, @RequestBody PostRequestDto requestsDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ApiResponseDto<SuccessResponse> updatePost(@PathVariable("postId") Long postId, @ModelAttribute PostRequestDto requestsDto, @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
         return postService.updatePost(postId, requestsDto, userDetails.getUser());
     }
 

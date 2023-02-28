@@ -62,6 +62,7 @@ public class PostService {
                     FileUtil.cutFileName(file.getOriginalFilename(), 500), fileUrl);
 
             postRequestDto.setImage(fileInfo.getFileUrl());
+            postRequestDto.setOriginalFilename(file.getOriginalFilename());
 
 
         } catch (IOException ie) {
@@ -81,7 +82,11 @@ public class PostService {
 
     // 선택된 게시글 수정
     @Transactional
-    public ApiResponseDto<SuccessResponse> updatePost(Long id, PostRequestDto requestsDto, Member member) {
+    public ApiResponseDto<SuccessResponse> updatePost(Long id, PostRequestDto requestsDto, Member member) throws IOException {
+        String fileUrl = "";
+        FileInfo fileInfo;
+
+        MultipartFile file = requestsDto.getFile();
 
         // 선택한 게시글이 DB에 있는지 확인
         Optional<Post> post = postRepository.findById(id);
@@ -95,7 +100,19 @@ public class PostService {
             throw new CustomException(ExceptionEnum.NOT_EXIST_POST);
         }
 
+        //이미지 비어있을시
+        if (file.isEmpty()){
+
+            post.get().update(requestsDto, member);
+            return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "수정 완료"));
+        }
         // 게시글 id 와 사용자 정보 일치한다면, 게시글 수정
+
+        fileUrl = uploader.upload(file, "testImage");
+        fileInfo = new FileInfo(
+                FileUtil.cutFileName(file.getOriginalFilename(), 500), fileUrl);
+
+        requestsDto.setImage(fileInfo.getFileUrl());
         post.get().update(requestsDto, member);
 
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "수정 완료"));
@@ -116,12 +133,11 @@ public class PostService {
         if (board.isEmpty()) { // 일치하는 게시물이 없다면
             throw new CustomException(ExceptionEnum.NOT_EXIST_POST);
         }
-
-        // 이미지 reposit 이미지 삭제
-        FileInfo fileInfo = fileInfoRepository
-                .findById(id).orElseThrow(() -> new RuntimeException("존재 하지 않는 파일"));
-        fileInfoRepository.deleteById(id);
-        uploader.delete(fileInfo.S3key());
+        // S3 이미지 삭제
+//        Post post = postRepository
+//                .findById(id).orElseThrow(() -> new RuntimeException("존재 하지 않는 파일"));
+//        FileInfo fileInfo = new FileInfo(post.getOriginalFilename(), post.getImage());
+//        uploader.delete(fileInfo.S3key());
 
         // 게시글 id 와 사용자 정보 일치한다면, 게시글 수정
         postRepository.deleteById(id);

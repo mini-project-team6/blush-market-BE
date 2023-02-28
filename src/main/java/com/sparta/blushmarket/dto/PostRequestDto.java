@@ -10,6 +10,7 @@ public class PostRequestDto {
     private String title;
     private String content;
     private String image;
+    private String originalFilename;
 
     private MultipartFile file;
 

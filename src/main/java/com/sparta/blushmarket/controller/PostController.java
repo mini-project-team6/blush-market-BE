@@ -5,7 +5,6 @@ import com.sparta.blushmarket.common.SuccessResponse;
 import com.sparta.blushmarket.dto.PostRequestDto;
 import com.sparta.blushmarket.dto.PostResponseDto;
 import com.sparta.blushmarket.dto.PostResponseDtoDetail;
-import com.sparta.blushmarket.entity.FileInfo;
 import com.sparta.blushmarket.entity.Member;
 import com.sparta.blushmarket.security.UserDetailsImpl;
 import com.sparta.blushmarket.service.PostService;

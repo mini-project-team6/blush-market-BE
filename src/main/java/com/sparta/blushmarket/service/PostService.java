@@ -14,10 +14,12 @@ import com.sparta.blushmarket.entity.FileInfo;
 import com.sparta.blushmarket.entity.Member;
 import com.sparta.blushmarket.entity.Post;
 import com.sparta.blushmarket.entity.enumclass.ExceptionEnum;
+import com.sparta.blushmarket.entity.enumclass.SellState;
 import com.sparta.blushmarket.exception.CustomException;
 import com.sparta.blushmarket.repository.FileInfoRepository;
 import com.sparta.blushmarket.repository.LikeRepository;
 import com.sparta.blushmarket.repository.PostRepository;
+import com.sparta.blushmarket.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -148,23 +150,31 @@ public class PostService {
 
     //선택된 게시글 상세보기
     @Transactional()
-    public ApiResponseDto<PostResponseDtoDetail> getPost(Long id, Member member) {
+    public ApiResponseDto<PostResponseDtoDetail> getPost(Long id, UserDetailsImpl userDetails) {
         Boolean isLike=false;
+        Boolean ismine=false;
+        Member member =null;
         // Id에 해당하는 게시글이 있는지 확인
         Optional<Post> post = postRepository.findById(id);
         if (post.isEmpty()) { // 해당 게시글이 없다면
             throw new CustomException(ExceptionEnum.NOT_EXIST_POST);
         }
-
+        if (userDetails !=null) {
+            member = userDetails.getUser();
+        }
 
         List<CommentResponseDto> commentList = post.get().getCommentList().stream().map(CommentResponseDto::from).sorted(Comparator.comparing(CommentResponseDto::getCreateAt).reversed()).toList();
         // board 를 responseDto 로 변환 후, ResponseEntity body 에 dto 담아 리턴
         if (member != null&&likeRepository.findByPost_IdAndMember_Id(id,member.getId()).isPresent()){
             isLike=true;
-
         }
+        if (member!= null&&postRepository.findByIdAndMember(id,member).isPresent()){
+            ismine=true;
+        }
+        int sellcount = postRepository.countByMember_IdAndSellState(post.get().getMember().getId(),SellState.SOLDOUT);
 
-        return ResponseUtils.ok(PostResponseDtoDetail.from(isLike,post.get(),commentList));
+
+        return ResponseUtils.ok(PostResponseDtoDetail.from(post.get(),commentList,isLike,ismine,sellcount));
     }
 
 
@@ -181,18 +191,27 @@ public class PostService {
                 isLike=true;
 
             }
-            responseDtoList.add(PostResponseDto.from(isLike,post));
+            int sellcount = postRepository.countByMember_IdAndSellState(post.getMember().getId(),SellState.SOLDOUT);
+            responseDtoList.add(PostResponseDto.from(isLike,post,sellcount));
         }
 
         return ResponseUtils.ok(responseDtoList);
     }
 
-    public ApiResponseDto<List<PostResponseDto>> getPostsByKeyword(String keyword, Member member) {
-        List<Post> postList = postRepository.findByTitleContainsOrderByCreatedAtDesc(keyword);
+    public ApiResponseDto<List<PostResponseDto>> getPostsByKeyword(String keyword,Integer sellstatus, UserDetailsImpl userDetails) {
+        Member member = null;
+        List<Post> postList;
+        if (sellstatus!=null){
+            postList = postRepository.findByTitleContainsAndSellStateOrderByCreatedAtDesc(keyword, SellState.fromInteger(sellstatus));
+        }else {
+            postList = postRepository.findByTitleContainsOrderByCreatedAtDesc(keyword);
+        }
         System.out.println(postList.size());
 
         List<PostResponseDto> responseDtoList = new ArrayList<>();
-
+        if (userDetails !=null) {
+            member = userDetails.getUser();
+        }
         for (Post post : postList) {
             Boolean isLike=false;
             // List<BoardResponseDto> 로 만들기 위해 board 를 BoardResponseDto 로 만들고, list 에 dto 를 하나씩 넣는다.
@@ -201,7 +220,8 @@ public class PostService {
                 isLike=true;
 
             }
-            responseDtoList.add(PostResponseDto.from(isLike,post));
+            int sellcount = postRepository.countByMember_IdAndSellState(post.getMember().getId(),SellState.SOLDOUT);
+            responseDtoList.add(PostResponseDto.from(isLike,post,sellcount));
         }
 
         return ResponseUtils.ok(responseDtoList);

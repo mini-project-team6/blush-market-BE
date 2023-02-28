@@ -41,7 +41,7 @@ public class MemberService {
     public ApiResponseDto<SuccessResponse> signup(SignupRequestDto signupRequestDto){
         // 회원가입 유저가 있는지 확인하는 부분
         // 기존에 id체크하는 부분이 있어서 이 부분 관련 협의 필요
-        memberCheck(signupRequestDto.getName());
+        memberCheck(signupRequestDto.getEmail());
         memberRepository.save(
                 Member.builder()
                         .name(signupRequestDto.getName())
@@ -86,8 +86,8 @@ public class MemberService {
      * 등록된 멤버인지 확인하는 기능
      */
     @Transactional
-    public void memberCheck(String username) {
-        Optional<Member> findMember = memberRepository.findByName(username);
+    public void memberCheck(String useremail) {
+        Optional<Member> findMember = memberRepository.findByEmail(useremail);
         if(findMember.isPresent()){
             throw new CustomException(ExceptionEnum.DUPLICATE_USER);
         }

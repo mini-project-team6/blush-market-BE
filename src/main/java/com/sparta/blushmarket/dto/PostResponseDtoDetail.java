@@ -17,11 +17,15 @@ public class PostResponseDtoDetail {
     private SellState sellState;
 
     private boolean likes;
+
+    private boolean ismine;
     private List<CommentResponseDto> commentList;
+
+    private int sellcount;
 
 
     @Builder
-    private PostResponseDtoDetail(boolean likes, Post post, List<CommentResponseDto> commentList) {
+    private PostResponseDtoDetail( Post post, List<CommentResponseDto> commentList,boolean likes,boolean ismine,int sellcount) {
         this.id = post.getId();
         this.username =post.getMember().getName();
         this.title = post.getTitle();
@@ -29,13 +33,17 @@ public class PostResponseDtoDetail {
         this.image = post.getImage();
         this.sellState = post.getSellState();
         this.likes = likes;
+        this.ismine = ismine;
+        this.sellcount = sellcount;
         this.commentList = commentList;
     }
 
-    public static PostResponseDtoDetail from(boolean likes, Post post, List<CommentResponseDto>  commentList) {
+    public static PostResponseDtoDetail from( Post post, List<CommentResponseDto>  commentList,boolean likes,boolean ismine,int sellcount) {
         return PostResponseDtoDetail.builder()
                 .post(post)
                 .likes(likes)
+                .ismine(ismine)
+                .sellcount(sellcount)
                 .commentList(commentList)
                 .build();
 

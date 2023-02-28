@@ -50,7 +50,7 @@ public class PostController {
     @Operation(summary = "특정 게시글 메서드", description = "특정 게시글 메서드 입니다.")
     @GetMapping("/api/post/{postId}")
     public ApiResponseDto<PostResponseDtoDetail> getPost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return postService.getPost(postId,userDetails.getUser());
+        return postService.getPost(postId,userDetails);
     }
 
     // 게시글 전체 목록 조회
@@ -62,8 +62,11 @@ public class PostController {
 
     @Operation(summary = "게시글 키워드검색 메서드", description = "게시글 키워드검색 메서드 입니다.")
     @GetMapping("/api/posts")
-    public ApiResponseDto<List<PostResponseDto>> getAllPosts( @RequestParam("keyword") String keyword , @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return postService.getPostsByKeyword(keyword,userDetails.getUser());
+    public ApiResponseDto<List<PostResponseDto>> getAllPosts( @RequestParam("keyword") String keyword, @RequestParam(name="sellstatus", required=false) Integer sellstaus  , @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        return postService.getPostsByKeyword(keyword,sellstaus,userDetails);
     }
+
+
 
 }

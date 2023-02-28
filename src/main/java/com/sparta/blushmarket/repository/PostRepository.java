@@ -2,6 +2,7 @@ package com.sparta.blushmarket.repository;
 
 import com.sparta.blushmarket.entity.Member;
 import com.sparta.blushmarket.entity.Post;
+import com.sparta.blushmarket.entity.enumclass.SellState;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,5 +17,8 @@ public interface PostRepository extends JpaRepository<Post,Long> {
 
     List<Post> findByTitleContainsOrderByCreatedAtDesc(String keyword);
 
+    List<Post> findByTitleContainsAndSellStateOrderByCreatedAtDesc(String keyword,SellState sellState);
+
+    int countByMember_IdAndSellState(Long memberId,SellState sellState);
 
 }

@@ -126,6 +126,7 @@ public class PostService {
     @Transactional()
     public ApiResponseDto<PostResponseDtoDetail> getPost(Long id, UserDetailsImpl userDetails) {
         Boolean isLike=false;
+        Boolean ismine=false;
         Member member =null;
         // Id에 해당하는 게시글이 있는지 확인
         Optional<Post> post = postRepository.findById(id);
@@ -140,10 +141,12 @@ public class PostService {
         // board 를 responseDto 로 변환 후, ResponseEntity body 에 dto 담아 리턴
         if (member != null&&likeRepository.findByPost_IdAndMember_Id(id,member.getId()).isPresent()){
             isLike=true;
-
+        }
+        if (member!= null&&postRepository.findByIdAndMember(id,member).isPresent()){
+            ismine=true;
         }
 
-        return ResponseUtils.ok(PostResponseDtoDetail.from(isLike,post.get(),commentList));
+        return ResponseUtils.ok(PostResponseDtoDetail.from(post.get(),commentList,isLike,ismine));
     }
 
 

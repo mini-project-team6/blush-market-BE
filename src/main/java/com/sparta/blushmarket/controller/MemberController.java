@@ -5,6 +5,8 @@ import com.sparta.blushmarket.common.ErrorResponse;
 import com.sparta.blushmarket.common.ResponseUtils;
 import com.sparta.blushmarket.common.SuccessResponse;
 import com.sparta.blushmarket.dto.SignupRequestDto;
+import com.sparta.blushmarket.entity.enumclass.ExceptionEnum;
+import com.sparta.blushmarket.exception.CustomException;
 import com.sparta.blushmarket.service.MemberService;
 import com.sparta.blushmarket.service.oauth.KakaoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,10 +15,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
@@ -43,7 +47,13 @@ public class MemberController {
      */
     @Operation(summary = "회원가입 메서드", description = "회원가입 메서드 입니다.")
     @PostMapping("/member/signup")
-    public ApiResponseDto<SuccessResponse> signup(@RequestBody SignupRequestDto signupRequestDto){
+    public ApiResponseDto<SuccessResponse> signup(@Valid @RequestBody SignupRequestDto signupRequestDto, BindingResult result){
+        if (result.hasErrors()){
+            log.error("error={}",result.getFieldError().getDefaultMessage());
+            if (result.getFieldError().getDefaultMessage().equals("패스워드에러"))
+                throw new CustomException(ExceptionEnum.INVALID_PASSWD_REG);
+            throw new CustomException(ExceptionEnum.INVALID_EMAIL_REG);
+        }
         return memberService.signup(signupRequestDto);
     }
 

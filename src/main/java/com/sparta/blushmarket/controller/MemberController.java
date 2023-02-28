@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/member")
+@RequestMapping("/api")
 @Slf4j
 @Tag(name = "회원", description = "회원 API 입니다.")
 public class MemberController {
@@ -42,7 +42,7 @@ public class MemberController {
      * 회원가입 기능 Controller
      */
     @Operation(summary = "회원가입 메서드", description = "회원가입 메서드 입니다.")
-    @PostMapping("/signup")
+    @PostMapping("/member/signup")
     public ApiResponseDto<SuccessResponse> signup(@RequestBody SignupRequestDto signupRequestDto){
         return memberService.signup(signupRequestDto);
     }
@@ -51,15 +51,15 @@ public class MemberController {
      * 회원명 중복 체크
      */
     @Operation(summary = "회원 중복확인 메서드", description = "회원 중복확인 메서드 입니다.")
-    @GetMapping("/usercheck/{username}")
-    public ApiResponseDto<SuccessResponse> memberCheck(@PathVariable String username) {
+    @GetMapping("/member")
+    public ApiResponseDto<SuccessResponse> memberCheck( @RequestParam("username") String username ) {
         memberService.memberCheck(username);
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK,"사용가능한 계정입니다"));
     }
 
 
     @Operation(summary = "회원 토큰 갱신 메서드", description = "회원 토큰 갱신 메서드 입니다.")
-    @GetMapping("/token")
+    @GetMapping("/member/token")
     public  ApiResponseDto<SuccessResponse> issuedToken(HttpServletRequest request, HttpServletResponse response){
         return memberService.issueToken(request,response);
     }

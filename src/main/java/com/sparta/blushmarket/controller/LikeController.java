@@ -19,7 +19,7 @@ public class LikeController {
 
     private final LikeService likeService;
     @Operation(summary = "글 찜하기 메서드", description = "글에 찜하기를 추가하거나 빼는 메서드")
-    @PostMapping("/like/{id}")
+    @PostMapping("/api/post/like/{id}")
     private ApiResponseDto<SuccessResponse> likePost(@PathVariable Long id , @AuthenticationPrincipal UserDetailsImpl userDetails){
         return likeService.likePost(id,userDetails.getUser());
     }

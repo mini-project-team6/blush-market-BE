@@ -25,7 +25,7 @@ public class PostController {
 
     //게시글 작성
     @PostMapping("/api/post")
-    public FileInfo createPost(@ModelAttribute PostRequestDto requestsDto, @AuthenticationPrincipal UserDetailsImpl userDetails
+    public ApiResponseDto<SuccessResponse> createPost(@ModelAttribute PostRequestDto requestsDto, @AuthenticationPrincipal UserDetailsImpl userDetails
     ) throws IOException {
         return postService.createPost(requestsDto, userDetails.getUser());
     }

@@ -43,31 +43,39 @@ public class PostService {
 
     //게시글 작성
     @Transactional
-    public FileInfo createPost(PostRequestDto postRequestDto, Member member) throws IOException {
+    public ApiResponseDto<SuccessResponse> createPost(PostRequestDto postRequestDto, Member member) throws IOException {
         String fileUrl = "";
         FileInfo fileinfo1;
+        FileInfo fileInfo;
         MultipartFile file = postRequestDto.getFile();
+
+        if (postRequestDto.getFile() == null){
+            postRepository.save(Post.of(postRequestDto, member));
+            return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "등록완료"));
+        }
 
         try {
             fileUrl = uploader.upload(file, "testImage");
-            FileInfo fileInfo = new FileInfo(
+            fileInfo = new FileInfo(
                     FileUtil.cutFileName(file.getOriginalFilename(), 500), fileUrl);
 
-            fileinfo1 =  fileInfoRepository.save(fileInfo);
-            postRequestDto.setImage(fileinfo1.getFileUrl());
-            //fileInfoRepository.save(fileInfo);
+
+            postRequestDto.setImage(fileInfo.getFileUrl());
+
 
         } catch (IOException ie) {
             log.info("S3파일 저장 중 예외 발생");
             throw ie;
 
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             log.info("s3에 저장되었던 파일 삭제");
             uploader.delete(fileUrl.substring(fileUrl.lastIndexOf(".com/") + 5));
             throw e;
         }
+
         postRepository.save(Post.of(postRequestDto, member));
-        return fileinfo1;
+        return  ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK, "작성 완료"));
     }
 
     // 선택된 게시글 수정

@@ -15,11 +15,12 @@ public class PostResponseDto {
     private SellState sellState;
 
     private boolean likes;
+    private int sellcount;
 
 
 
     @Builder
-    private PostResponseDto(boolean likes, Post post) {
+    private PostResponseDto(boolean likes, Post post,int sellcount) {
         this.id = post.getId();
         this.username =post.getMember().getName();
         this.title = post.getTitle();
@@ -27,14 +28,15 @@ public class PostResponseDto {
         this.image = post.getImage();
         this.sellState = post.getSellState();
         this.likes = likes;
+        this.sellcount = sellcount;
 
     }
 
-    public static PostResponseDto from(boolean likes, Post post) {
+    public static PostResponseDto from(boolean likes, Post post,int sellcount) {
         return PostResponseDto.builder()
                 .post(post)
                 .likes(likes)
-
+                .sellcount(sellcount)
                 .build();
 
     }

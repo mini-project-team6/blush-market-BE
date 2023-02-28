@@ -19,5 +19,6 @@ public interface PostRepository extends JpaRepository<Post,Long> {
 
     List<Post> findByTitleContainsAndSellStateOrderByCreatedAtDesc(String keyword,SellState sellState);
 
+    int countByMember_IdAndSellState(Long memberId,SellState sellState);
 
 }

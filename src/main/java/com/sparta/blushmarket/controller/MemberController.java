@@ -62,7 +62,7 @@ public class MemberController {
      */
     @Operation(summary = "회원 중복확인 메서드", description = "회원 중복확인 메서드 입니다.")
     @GetMapping("/member")
-    public ApiResponseDto<SuccessResponse> memberCheck( @RequestParam("username") String username ) {
+    public ApiResponseDto<SuccessResponse> memberCheck( @RequestParam("email") String username ) {
         memberService.memberCheck(username);
         return ResponseUtils.ok(SuccessResponse.of(HttpStatus.OK,"사용가능한 계정입니다"));
     }

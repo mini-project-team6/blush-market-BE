@@ -1,4 +1,5 @@
 # blush-market-BE
 
 ## 📃 ERD
-![blush-market](https://user-images.githubusercontent.com/72076023/221162390-18f1c1fe-8d4b-4cdc-9b96-a21fb43d2e9b.png)
+![erd](https://user-images.githubusercontent.com/111578825/222374201-69d6b5b4-35a0-40fb-8f20-771b1b7eb434.png)
+

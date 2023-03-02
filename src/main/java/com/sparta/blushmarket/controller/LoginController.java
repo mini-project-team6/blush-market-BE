@@ -2,7 +2,6 @@ package com.sparta.blushmarket.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sparta.blushmarket.common.ApiResponseDto;
-import com.sparta.blushmarket.common.ResponseUtils;
 import com.sparta.blushmarket.common.SuccessResponse;
 import com.sparta.blushmarket.dto.LoginRequestDto;
 import com.sparta.blushmarket.security.UserDetailsImpl;
@@ -13,11 +12,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
@@ -47,10 +44,7 @@ public class LoginController {
     @Operation(summary = "회원 카카오 로그인 메서드", description = "회원 카카오 로그인 메서드 입니다.")
     @GetMapping("/kakao/callback")
     public ApiResponseDto<SuccessResponse> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
-        log.info("response={}",response.getHeaderNames());
-        ApiResponseDto<SuccessResponse> successResponseApiResponseDto = kakaoService.kakaoLogin(code, response);
-
-        return successResponseApiResponseDto;
+        return kakaoService.kakaoLogin(code, response);
     }
 
     /**

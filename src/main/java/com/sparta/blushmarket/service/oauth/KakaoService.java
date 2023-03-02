@@ -74,7 +74,7 @@ public class KakaoService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", "67846cb341163af912b62f3c0feb8058"); //REST API KEY
-        body.add("redirect_uri", "http://localhost:8080/member/kakao/callback");
+        body.add("redirect_uri", "http://clickyour.shop:8080/api/member/kakao/callback");
         body.add("code", code);
 
         // HTTP 요청 보내기
@@ -114,6 +114,7 @@ public class KakaoService {
         String responseBody = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
+
         Long id = jsonNode.get("id").asLong();
         String nickname = jsonNode.get("properties")
                 .get("nickname").asText();
